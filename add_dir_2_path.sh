@@ -9,6 +9,7 @@ my_path=`pwd`;
 # export PATH=$PATH:$my_path;
 # add to .profile to be added to the PATH when new session is started
 echo "export PATH=$my_path:$PATH" >> ~/.profile;
+echo "export PATH=$my_path:$PATH" >> ~/.bashrc;
 # source ~/.profile to update PATH in current session
 source ~/.profile;
 # print complete message
