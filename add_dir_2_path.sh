@@ -12,7 +12,7 @@ echo "export PATH=$my_path:$PATH" >> ~/.profile;
 # source ~/.profile to update PATH in current session
 source ~/.profile;
 # print complete message
-echo "Adding this to PATH:";
+echo "Added this to PATH:";
 echo $my_path;
 echo "New PATH:";
 echo $PATH;
