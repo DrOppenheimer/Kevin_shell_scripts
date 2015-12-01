@@ -6,5 +6,9 @@ PATH=$PATH:$my_path
 # add to .profile to be added to the PATH when new session is started
 sudo echo PATH=$PATH:$my_path >> ~/.profile
 # print complete message
+echo "Old PATH:"
+echo $PATH
 echo "Adding this to PATH:"
-echo "$my_path"
+echo $my_path
+echo "New PATH:"
+echo $PATH
