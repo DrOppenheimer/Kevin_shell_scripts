@@ -1,7 +1,7 @@
 #!/bin/bash
 # simple script to add any directory to PATH
 # print current path
-echo "Old PATH:"
+echo "Old PATH:";
 echo $PATH;
 # get current dir
 my_path=`pwd`;
@@ -12,7 +12,7 @@ sudo echo "export PATH=$PATH:$my_path >> ~/.profile";
 # source ~/.profile to update PATH in current session
 sudo source ~/.profile;
 # print complete message
-echo "Adding this to PATH:"
+echo "Adding this to PATH:";
 echo $my_path;
-echo "New PATH:"
+echo "New PATH:";
 echo $PATH;
