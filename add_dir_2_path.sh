@@ -4,7 +4,7 @@ my_path=`pwd`
 # add to current path
 PATH=$PATH:$my_path
 # add to .profile to be added to the PATH when new session is started
-sudo `PATH=$PATH:$my_path >> ~/.profile`
+sudo PATH=$PATH:$my_path >> ~/.profile
 # print complete message
 echo "Adding this to PATH:"
 echo "$my_path"
