@@ -8,7 +8,7 @@ my_path=`pwd`;
 # add to current path
 # export PATH=$PATH:$my_path;
 # add to .profile to be added to the PATH when new session is started
-sudo echo export PATH=$PATH:$my_path >> ~/.profile;
+sudo echo "export PATH=$PATH:$my_path >> ~/.profile";
 # source ~/.profile to update PATH in current session
 sudo source ~/.profile;
 # print complete message
