@@ -11,7 +11,7 @@ my_path=`pwd`;
 echo "export PATH=$my_path:$PATH" >> ~/.profile;
 echo "export PATH=$my_path:$PATH" >> ~/.bashrc;
 # source ~/.profile to update PATH in current session
-source ~/.profile;
+. ~/.profile;
 # print complete message
 echo "Added this to PATH:";
 echo $my_path;
