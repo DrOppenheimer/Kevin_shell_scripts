@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # number of times to perform the operation
-NUMREPEATS=1;
+NUMREPEATS=2;
 MYLOG="rw_log.txt";
 
 MYBUCKET="test_bucket"
