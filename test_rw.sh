@@ -22,7 +22,7 @@ do
     my_size=`ls -ltr $FILE1 | cut -d " " -f 5`
     my_size_gb=`echo "$my_size/$DENOM"|bc -l`
     START_TIME=$SECONDS
-    s3cmd sync ./$FILE1 s3://$MYBUCKET/
+    s3cmd sync ./$FILE1 s3://$MYBUCKET/ 2> $MYLOG
     ELAPSED_TIME=$(($SECONDS - $START_TIME))
     
     #loop to print outputs
