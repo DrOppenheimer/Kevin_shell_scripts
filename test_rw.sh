@@ -7,14 +7,14 @@ MYLOG="rw_log.txt";
 MYBUCKET="test_bucket"
 
 #FILE1="ERR_tar.1Gb.gz"
-FILE1="ERR188481_2.fastq.gz"
+FILE1="ERR188449_1.fastq.gz"
 FILE2="ERR_tar.11Gb.gz"
 FILE3="ERR_tar.59Gb.gz"
 
 DENOM=`echo 2^30 | bc` # i.e. bytes in GB
 
 echo "# test_rw.sh log\t"`date` > $MYLOG
-echo "# File\tsize(Gb)\tTransfer_time\tRepeat\tParcel(?)" >> $MYLOG 
+echo "# File\tsize(Gb)\tTransfer_time\tTransfer_rate(Gb/s)\tRepeat\tParcel(?)" >> $MYLOG 
 
 for i in {1..1}; # tried using NUMREPEAT var here -- does not work
 do
@@ -25,9 +25,9 @@ do
     START_TIME=$SECONDS
     s3cmd sync ./$FILE1 s3://$MYBUCKET/
     ELAPSED_TIME=$(($SECONDS - $START_TIME))
-    
+    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
     #loop to print outputs
-    echo $FILE1"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$i"\tN" >> $MYLOG
+    echo $FILE1"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"my_transfer_rate"\t"$i"\tN" >> $MYLOG
     
 done
 
