@@ -20,13 +20,13 @@ do
 
     # upload file 1 (no parcel)
     my_size=`ls -ltr $FILE1 | cut -d " " -f 5`
-    my_size_gb=`echo $(($my_size / $DENOM))`
+    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
     START_TIME=$SECONDS
     s3cmd sync ./$FILE1 s3://$MYBUCKET/
     ELAPSED_TIME=$(($SECONDS - $START_TIME))
     
     #loop to print outputs
-    echo $FILE1"\t"$my_size_gb.{$j}"\t"$ELAPSED_TIME"\t"$i"\tN" >> $MYLOG
+    echo $FILE1"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$i"\tN" >> $MYLOG
     
 done
 
