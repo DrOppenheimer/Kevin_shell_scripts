@@ -13,12 +13,11 @@ FILE3="ERR_tar.59Gb.gz"
 DENOM=`echo 2^30 | bc` # i.e. bytes in GB
 
 echo "# test_rw.sh log\t"`date` > $MYLOG
-echo "# File\tsize(Gb)\tTransfer_time\tRepeat\tSTREAM\tParcel(?)" >> $MYLOG 
+echo "# File\tsize(Gb)\tTransfer_time\tRepeat\tParcel(?)" >> $MYLOG 
 
 for i in {1..1}; # tried using NUMREPEAT var here -- does not work
 do
 
-    echo "iteration $i"
     # upload file 1 (no parcel)
     my_size=`ls -ltr $FILE1 | cut -d " " -f 5`
     my_size_gb=`echo $(($my_size / $DENOM))`
@@ -27,7 +26,7 @@ do
     ELAPSED_TIME=$(($SECONDS - $START_TIME))
     
     #loop to print outputs
-    echo $FILE1"\t"$my_size_gb.{$j}"\t"$ELAPSED_TIME"\t"$i"\t"$j"\tN" >> $MYLOG
+    echo $FILE1"\t"$my_size_gb.{$j}"\t"$ELAPSED_TIME"\t"$i"\tN" >> $MYLOG
     
 done
 
