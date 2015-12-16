@@ -7,7 +7,7 @@ MYLOG="rw_log.txt";
 MYBUCKET="test_bucket"
 
 #FILE1="ERR_tar.1Gb.gz"
-FILE1="ERR188449_1.fastq.gz"
+FILE1="ERR188416_2.fastq.gz"
 FILE2="ERR_tar.11Gb.gz"
 FILE3="ERR_tar.59Gb.gz"
 
@@ -27,7 +27,7 @@ do
     ELAPSED_TIME=$(($SECONDS - $START_TIME))
     my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
     #loop to print outputs
-    echo $FILE1"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"my_transfer_rate"\t"$i"\tN" >> $MYLOG
+    echo $FILE1"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $MYLOG
     
 done
 
