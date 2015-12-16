@@ -6,7 +6,8 @@ MYLOG="rw_log.txt";
 
 MYBUCKET="test_bucket"
 
-FILE1="ERR_tar.1Gb.gz"
+#FILE1="ERR_tar.1Gb.gz"
+FILE1="ERR188481_2.fastq.gz"
 FILE2="ERR_tar.11Gb.gz"
 FILE3="ERR_tar.59Gb.gz"
 
@@ -22,7 +23,7 @@ do
     my_size=`ls -ltr $FILE1 | cut -d " " -f 5`
     my_size_gb=`echo "$my_size/$DENOM"|bc -l`
     START_TIME=$SECONDS
-    s3cmd sync ./$FILE1 s3://$MYBUCKET/ 2> $MYLOG
+    s3cmd sync ./$FILE1 s3://$MYBUCKET/
     ELAPSED_TIME=$(($SECONDS - $START_TIME))
     
     #loop to print outputs
