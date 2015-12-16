@@ -15,7 +15,7 @@ DENOM=`echo 2^30 | bc` # i.e. bytes in GB
 echo "# test_rw.sh log\t"`date` > $MYLOG
 echo "# File\tsize(Gb)\tTransfer_time\tRepeat\tSTREAM\tParcel(?)" >> $MYLOG 
 
-for i in {1..$NUMREPEATS};
+for i in {1..${NUMREPEATS}};
 do
 
     echo "iteration $i"
