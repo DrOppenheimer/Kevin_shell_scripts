@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # number of times to perform the operation
-NUMREPEATS=5;
+NUMREPEATS=1;
 MYLOG="rw_log.txt";
 
 MYBUCKET="test_bucket"
@@ -17,6 +17,8 @@ echo "# File\tsize(Gb)\tTransfer_time\tRepeat\tSTREAM\tParcel(?)" >> $MYLOG
 
 for i in {1..$NUMREPEATS};
 do
+
+    echo "iteration $i"
     # upload file 1 (no parcel)
     my_size=`ls -ltr $FILE1 | cut -d " " -f 5`
     my_size_gb=`echo $(($my_size / $DENOM))`
