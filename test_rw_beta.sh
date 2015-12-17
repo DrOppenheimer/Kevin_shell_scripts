@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # number of times to perform the operation
-NUMREPEATS=5;
+NUMREPEATS=1;
 MYLOG="rw_log.txt";
 
 MYBUCKET="test_bucket"
@@ -45,7 +45,7 @@ upload_file(){
 }
 
 # MAIN
-upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
+###upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 # for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
 # do
 #     file_check=`s3cmd ls s3://$MYBUCKET/$FILE1 | wc -l`
@@ -63,7 +63,7 @@ upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 # done
 
 # # upload file 2 (no parcel)
-upload_file $MYBUCKET $FILE2 $MYLOG $DENOM
+###upload_file $MYBUCKET $FILE2 $MYLOG $DENOM
 # for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
 # do
 #     file_check=`s3cmd ls s3://$MYBUCKET/$FILE2 | wc -l`
