@@ -15,7 +15,7 @@ FILE3="ERR_tar.59Gb.gz"
 DENOM=`echo 2^30 | bc` # i.e. bytes in GB
 
 echo -e "# test_rw.sh log\t"`date` > $MYLOG
-echo -e "# File\tsize(Gb)\tTransfer_time\tTransfer_rate(Gb/s)\tRepeat\tParcel(?)" >> $MYLOG 
+echo -e "# File\tsize(Gb)\tOperation\tTransfer_time\tTransfer_rate(Gb/s)\tRepeat" >> $MYLOG 
 
 # upload file 1 (no parcel)
 
@@ -26,6 +26,7 @@ upload_file(){
     NUMREPEATS=$3
     LOG=$4
     DENOM=$5
+    OPERATION="upload_without_parcel"
 
     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
     do
@@ -39,13 +40,43 @@ upload_file(){
 	s3cmd sync ./$FILE s3://$BUCKET/
 	ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	echo -e $FILE"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $LOG
+	echo -e $FILE"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
 	s3cmd del s3://$BUCKET/$FILE
     done
 }
 
+download_file(){
+    BUCKET=$1
+    FILE=$2
+    NUMREPEATS=$3
+    LOG=$4
+    DENOM=$5
+    OPERATION="download_without_parcel"
+      
+    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+    do
+	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+	if [[ $file_check -gt 0 ]]; then
+	    #s3cmd get s3://Onel_lab/test
+	    START_TIME=$SECONDS
+	    s3cmd get s3://$BUCKET/$FILE
+	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
+	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+	    echo -e $FILE"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	else
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	fi
+	
+    done
+}
+
 # MAIN
+
+# Test with file1
 upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
+download_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 # for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
 # do
 #     file_check=`s3cmd ls s3://$MYBUCKET/$FILE1 | wc -l`
@@ -63,7 +94,7 @@ upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 # done
 
 # # upload file 2 (no parcel)
-###upload_file $MYBUCKET $FILE2 $MYLOG $DENOM
+###upload_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
 # for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
 # do
 #     file_check=`s3cmd ls s3://$MYBUCKET/$FILE2 | wc -l`
@@ -81,7 +112,7 @@ upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 # done
 
 # # upload file 3 (no parcel)
-### upload_file $MYBUCKET $FILE3 $MYLOG $DENOM
+### upload_file $MYBUCKET $FILE3 $NUMREPEATS $MYLOG $DENOM
 # for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
 # do
 #     file_check=`s3cmd ls s3://$MYBUCKET/$FILE3 | wc -l`
