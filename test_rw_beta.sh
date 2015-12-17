@@ -45,7 +45,7 @@ upload_file(){
 }
 
 # MAIN
-###upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
+upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 # for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
 # do
 #     file_check=`s3cmd ls s3://$MYBUCKET/$FILE1 | wc -l`
@@ -81,7 +81,7 @@ upload_file(){
 # done
 
 # # upload file 3 (no parcel)
-upload_file $MYBUCKET $FILE3 $MYLOG $DENOM
+### upload_file $MYBUCKET $FILE3 $MYLOG $DENOM
 # for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
 # do
 #     file_check=`s3cmd ls s3://$MYBUCKET/$FILE3 | wc -l`
