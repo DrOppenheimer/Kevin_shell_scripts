@@ -28,8 +28,18 @@ upload_file(){
     DENOM=$5
     OPERATION="upload_without_parcel"
 
+    # check to make sure the file exists locally, if not, exit
+    if [[ -e $FILE ]]; then
+
+    else
+	echo -e $FILE"\tDoes not exist locally" >> $LOG
+	exit
+    fi
+
+    # Perform test NUMREPEAT times
     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
     do
+	# delete the file if it already exists in the bucket
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
 	    s3cmd del s3://$BUCKET/$FILE
@@ -41,9 +51,12 @@ upload_file(){
 	ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	echo -e $FILE"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+
+	# delete the uploaded file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
 	    s3cmd del s3://$BUCKET/$FILE
 	fi
+
     done
 }
 
@@ -54,9 +67,16 @@ download_file(){
     LOG=$4
     DENOM=$5
     OPERATION="download_without_parcel"
-      
+
+    # check to make sure the file exists locally
+    if [[ -e $FILE ]]; then
+	    rm $FILE
+    fi
+
+    # Perform test NUMREPEAT times
     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
     do
+	
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
 	    #s3cmd get s3://Onel_lab/test
@@ -69,6 +89,11 @@ download_file(){
 	    echo -e $FILE"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
 	else
 	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	fi
+
+	# delete the local file every iteration except the last
+	if [[ $i -lt $NUMREPEATS ]]; then
+	    rm $FILE
 	fi
 	
     done
