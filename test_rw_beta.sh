@@ -19,7 +19,32 @@ echo -e "# File\tsize(Gb)\tTransfer_time\tTransfer_rate(Gb/s)\tRepeat\tParcel(?)
 
 # upload file 1 (no parcel)
 
+# FUNCTION DEFS
+upload_file(){
+    BUCKET=$1
+    FILE=$2
+    NUMREPEATS=$3
+    LOG=$4
+    DENOM=$5
 
+    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+    do
+	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+	if [[ $file_check -gt 0 ]]; then
+	    s3cmd del s3://$BUCKET/$FILE
+	fi
+	my_size=`ls -ltr $FILE | cut -d " " -f 5`
+	my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+	START_TIME=$SECONDS
+	s3cmd sync ./$FILE s3://$BUCKET/
+	ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	echo -e $FILE"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $LOG
+	s3cmd del s3://$BUCKET/$FILE
+    done
+}
+
+# MAIN
 upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 # for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
 # do
@@ -75,29 +100,7 @@ upload_file $MYBUCKET $FILE3 $MYLOG $DENOM
 
 
 
-upload_file(){
-    BUCKET=$1
-    FILE=$2
-    NUMREPEATS=$3
-    LOG=$4
-    DENOM=$5
 
-    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
-    do
-	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
-	if [[ $file_check -gt 0 ]]; then
-	    s3cmd del s3://$BUCKET/$FILE
-	fi
-	my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	my_size_gb=`echo "$my_size/$DENOM"|bc -l`
-	START_TIME=$SECONDS
-	s3cmd sync ./$FILE s3://$BUCKET/
-	ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	echo -e $FILE"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $LOG
-	s3cmd del s3://$BUCKET/$FILE
-    done
-}
 
 
 
