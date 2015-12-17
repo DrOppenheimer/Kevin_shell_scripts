@@ -74,32 +74,32 @@ download_file(){
     done
 }
 
-upload_file_wp(){
-    BUCKET=$1
-    FILE=$2
-    NUMREPEATS=$3
-    LOG=$4
-    DENOM=$5
-    OPERATION="upload_with_parcel"
+# upload_file_wp(){
+#     BUCKET=$1
+#     FILE=$2
+#     NUMREPEATS=$3
+#     LOG=$4
+#     DENOM=$5
+#     OPERATION="upload_with_parcel"
 
-    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
-    do
-	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
-	if [[ $file_check -gt 0 ]]; then
-	    s3cmd del s3://$BUCKET/$FILE
-	fi
-	my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	my_size_gb=`echo "$my_size/$DENOM"|bc -l`
-	START_TIME=$SECONDS
-	s3cmd sync ./$FILE s3://$BUCKET/
-	ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	echo -e $FILE"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
-	s3cmd del s3://$BUCKET/$FILE
-    done
-}
+#     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+#     do
+# 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+# 	if [[ $file_check -gt 0 ]]; then
+# 	    s3cmd del s3://$BUCKET/$FILE
+# 	fi
+# 	my_size=`ls -ltr $FILE | cut -d " " -f 5`
+# 	my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+# 	START_TIME=$SECONDS
+# 	s3cmd sync ./$FILE s3://$BUCKET/
+# 	ELAPSED_TIME=$(($SECONDS - $START_TIME))
+# 	my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+# 	echo -e $FILE"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+# 	s3cmd del s3://$BUCKET/$FILE
+#     done
+# }
 
-download_file_wp(){}
+# download_file_wp(){}
 
 
 
