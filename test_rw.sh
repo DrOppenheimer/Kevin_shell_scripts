@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # number of times to perform the operation
-#NUMREPEATS=2;
+NUMREPEATS=5;
 MYLOG="rw_log.txt";
 
 MYBUCKET="test_bucket"
 
-#FILE1="ERR_tar.1Gb.gz"
-FILE1="ERR188416_2.fastq.gz"
+
+#FILE1="ERR188416_2.fastq.gz"
+FILE1="ERR_tar.1Gb.gz"
 FILE2="ERR_tar.11Gb.gz"
 FILE3="ERR_tar.59Gb.gz"
 
@@ -16,19 +17,55 @@ DENOM=`echo 2^30 | bc` # i.e. bytes in GB
 echo "# test_rw.sh log\t"`date` > $MYLOG
 echo "# File\tsize(Gb)\tTransfer_time\tTransfer_rate(Gb/s)\tRepeat\tParcel(?)" >> $MYLOG 
 
-for i in {1..1}; # tried using NUMREPEAT var here -- does not work
+# upload file 1 (no parcel)
+for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
 do
-
-    # upload file 1 (no parcel)
+    file_check=`s3cmd ls s3://$MYBUCKET/$FILE1 | wc -l`
+    if [[ $file_check -gt 0 ]]; then
+	s3cmd del s3://$MYBUCKET/$FILE1
+    fi
     my_size=`ls -ltr $FILE1 | cut -d " " -f 5`
     my_size_gb=`echo "$my_size/$DENOM"|bc -l`
     START_TIME=$SECONDS
     s3cmd sync ./$FILE1 s3://$MYBUCKET/
     ELAPSED_TIME=$(($SECONDS - $START_TIME))
     my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-    #loop to print outputs
     echo $FILE1"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $MYLOG
-    
+    s3cmd del s3://$MYBUCKET/$FILE1
+done
+
+# upload file 2 (no parcel)
+for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+do
+    file_check=`s3cmd ls s3://$MYBUCKET/$FILE2 | wc -l`
+    if [[ $file_check -gt 0 ]]; then
+	s3cmd del s3://$MYBUCKET/$FILE2
+    fi
+    my_size=`ls -ltr $FILE2 | cut -d " " -f 5`
+    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+    START_TIME=$SECONDS
+    s3cmd sync ./$FILE2 s3://$MYBUCKET/
+    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+    echo $FILE2"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $MYLOG
+    s3cmd del s3://$MYBUCKET/$FILE2
+done
+
+# upload file 3 (no parcel)
+for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+do
+    file_check=`s3cmd ls s3://$MYBUCKET/$FILE3 | wc -l`
+    if [[ $file_check -gt 0 ]]; then
+	s3cmd del s3://$MYBUCKET/$FILE3
+    fi
+    my_size=`ls -ltr $FILE3 | cut -d " " -f 5`
+    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+    START_TIME=$SECONDS
+    s3cmd sync ./$FILE3 s3://$MYBUCKET/
+    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+    echo $FILE3"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $MYLOG
+    s3cmd del s3://$MYBUCKET/$FILE3
 done
 
 
@@ -37,7 +74,18 @@ done
 
 
 
-    
+# delete a non-empty bucket
+# s3cmd del --recursive s3://bucket-to-delete
+
+# delete file in bucket
+# s3cmd del s3://test_bucket/ERR_tar.1Gb.gz
+# File s3://test_bucket/ERR_tar.1Gb.gz deleted
+
+
+# delete empty bucket
+# s3cmd rb s3://logix.cz-test
+
+
 # # upload
 
 # s3cmd sync ./ERR_tar.1Gb.gz s3://test_bucket/
