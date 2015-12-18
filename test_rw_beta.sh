@@ -34,9 +34,9 @@ upload_file(){
 
     # check to make sure the file exists locally, if not, exit
     if [[ -e $FILE ]]; then
-	echo -e "$\nFILE exists locally, proceeding to upload\n"
+	echo -e "$\n$FILE exists locally, proceeding to upload\n"
     else
-	echo -e "$FILE\tDoes not exist locally" >> $LOG
+	echo -e "\n$FILE Does not exist locally" >> $LOG
 	exit 1 "$FILE\tDoes not exist locally"
     fi
 
@@ -92,6 +92,7 @@ download_file(){
 	if [[ $file_check -gt 0 ]]; then
 	    #s3cmd get s3://Onel_lab/test
 	    START_TIME=$SECONDS
+	    echo -e "\nRunning \"s3cmd get s3://$BUCKET/$FILE\"\n"
 	    s3cmd get s3://$BUCKET/$FILE
 	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
@@ -146,6 +147,7 @@ download_file_wp(){
 	    #s3cmd get s3://Onel_lab/test
 	    START_TIME=$SECONDS
 	    #s3cmd get s3://$BUCKET/$FILE
+	    echo -e "\nRunning: \"wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE\" \n"
 	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
 	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
@@ -219,6 +221,16 @@ upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 download_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 download_file_wp $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
 
+
+
+# S3 set to public read
+# -P, --acl-public      Store objects with ACL allowing read for anyone.
+
+
+
+
+#for key in bucket.list():
+#key.set_acl('public-read')
 
 
 
