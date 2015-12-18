@@ -34,7 +34,7 @@ upload_file(){
 
     # check to make sure the file exists locally, if not, exit
     if [[ -e $FILE ]]; then
-	
+	echo -e "$\nFILE exists locally, proceeding to upload\n"
     else
 	echo -e $FILE"\tDoes not exist locally" >> $LOG
 	exit
