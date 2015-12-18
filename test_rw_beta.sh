@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # number of times to perform the operation
-NUMREPEATS=1;
+NUMREPEATS=5;
 MYLOG="rw_log.txt";
 MYBUCKET="test_bucket"
 PARCELSERVERIPPORT="192.170.232.76:9000";
@@ -37,7 +37,7 @@ upload_file(){
 	echo -e "$\n$FILE exists locally, proceeding to upload\n"
     else
 	echo -e "\n$FILE Does not exist locally" >> $LOG
-	exit 1 "$FILE\tDoes not exist locally"
+	exit 1 "$FILE Does not exist locally"
     fi
 
     # Perform test NUMREPEAT times
@@ -170,6 +170,112 @@ download_file_wp(){
     pkill -P $$
 }
 
+
+
+
+
+# # function to upload data (using wput with parcel)
+# upload_file_wp(){
+#     BUCKET=$1
+#     FILE=$2
+#     NUMREPEATS=$3
+#     LOG=$4
+#     DENOM=$5
+#     PARCELSERVERIPPORT=$6
+#     PARCELLOCALHOSTPORT=$7
+#     OPERATION="wget.download_with_parcel"
+
+#     # start the parcel service
+#     # parcel-tcp2udt 192.170.232.76:9000 &
+#     echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
+#     parcel-tcp2udt $PARCELSERVERIPPORT &# > ./parcel.log 2>&1 & # <--- script dies here
+#     #PPID=$!
+#     parcel-udt2tcp $PARCELLOCALHOSTPORT &
+#     #PID_2=$!
+    
+#      # check to make sure the file exists locally, delete it if it does
+#     if [[ -e $FILE ]]; then
+# 	rm $FILE
+# 	echo -e "\nDeleting $FILE (locally) before proceeding with download from the bucket\n"
+#     else
+# 	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
+#     fi
+
+#     # Perform test NUMREPEAT times
+#     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+#     do
+	
+# 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+# 	if [[ $file_check -gt 0 ]]; then
+# 	    #s3cmd get s3://Onel_lab/test
+# 	    START_TIME=$SECONDS
+# 	    #s3cmd get s3://$BUCKET/$FILE
+# 	    echo -e "\nRunning: \"wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE\" \n"
+# 	    wput https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
+# 	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+# 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+# 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
+# 	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+# 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+# 	else
+# 	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+# 	fi
+
+# 	# delete the local file every iteration except the last
+# 	if [[ $i -lt $NUMREPEATS ]]; then
+# 	    rm $FILE
+# 	fi
+	
+#     done
+
+#     # Kill child process (parcel)
+#     #kill $PPID
+#     pkill -P $$
+# }
+
+
+###########################################################################
+###########################################################################
+###########################################################################
+
+# # check to make sure the file exists locally, if not, exit
+#     if [[ -e $FILE ]]; then
+# 	echo -e "$\n$FILE exists locally, proceeding to upload\n"
+#     else
+# 	echo -e "\n$FILE Does not exist locally" >> $LOG
+# 	exit 1 "$FILE Does not exist locally"
+#     fi
+
+#     # Perform test NUMREPEAT times
+#     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+#     do
+	
+# 	# delete the file if it already exists in the bucket
+# 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+# 	if [[ $file_check -gt 0 ]]; then
+# 	    s3cmd del s3://$BUCKET/$FILE
+# 	    echo -e "\n$FILE exists in bucket, delete before proceeding with upload\n"
+# 	fi
+
+###########################################################################
+###########################################################################
+###########################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # download_file_wp(){}
 
 
@@ -220,6 +326,15 @@ download_file_wp(){
 upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 download_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 download_file_wp $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+
+upload_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
+download_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
+download_file_wp $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+
+upload_file $MYBUCKET $FILE3 $NUMREPEATS $MYLOG $DENOM
+download_file $MYBUCKET $FILE3 $NUMREPEATS $MYLOG $DENOM
+download_file_wp $MYBUCKET $FILE3 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+
 
 
 
