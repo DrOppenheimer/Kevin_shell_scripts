@@ -156,7 +156,7 @@ download_file_wp(){
     done
 
     # Kill Parcel process
-     kill $PPID
+    kill $PPID
 }
 
 # download_file_wp(){}
