@@ -17,7 +17,7 @@ FILE3="ERR_tar.59Gb.gz"
 DENOM=`echo 2^30 | bc` # i.e. bytes in GB
 
 echo -e "# test_rw.sh log\t"`date` > $MYLOG
-echo -e "# File\tsize(Gb)\tOperation\tTransfer_time\tTransfer_rate(Gb/s)\tRepeat" >> $MYLOG 
+echo -e "# File\tDate_stamp\tsize(Gb)\tOperation\tTransfer_time\tTransfer_rate(Gb/s)\tRepeat" >> $MYLOG 
 
 # upload file 1 (no parcel)
 
@@ -55,7 +55,7 @@ upload_file(){
 	s3cmd sync ./$FILE s3://$BUCKET/
 	ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	echo -e $FILE"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
 
 	# delete the uploaded file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
@@ -93,7 +93,7 @@ download_file(){
 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
-	    echo -e $FILE"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
 	else
 	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
 	fi
@@ -143,7 +143,7 @@ download_file_wp(){
 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
-	    echo -e $FILE"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
 	else
 	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
 	fi
@@ -168,7 +168,9 @@ download_file_wp(){
 # # do other stuff
 # kill $FOO_PID
 
-# # Download and install
+# # Download and install parcel and its requirements:
+# sudo apt-get install python-pip
+# sudo python setup.py develop
 # git clone https://github.com/LabAdvComp/parcel
 # cd parcel
 # sudo ./install
