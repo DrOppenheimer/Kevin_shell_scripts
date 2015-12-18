@@ -76,7 +76,10 @@ download_file(){
 
     # check to make sure the file exists locally, delete it if it does
     if [[ -e $FILE ]]; then
-	    rm $FILE
+	rm $FILE
+	echo -e "\nDeleting $FILE (locally) before proceeding with download from the bucket\n"
+    else
+	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
     fi
 
     # Perform test NUMREPEAT times
@@ -119,15 +122,18 @@ download_file_wp(){
 
     # start the parcel service
     # parcel-tcp2udt 192.170.232.76:9000 &
-    echo -e "\nparcel sever_port "$PARCELSERVERIPPORT"\n"
-    parcel-tcp2udt $PARCELSERVERIPPORT > ./parcel.log 2>&1 & # <--- script dies here
-    PPID=$!
+    echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
+    parcel-tcp2udt $PARCELSERVERIPPORT &# > ./parcel.log 2>&1 & # <--- script dies here
+    #PPID=$!
     #parcel-udt2tcp localhost:9000 &
     #PID_2=$!
     
      # check to make sure the file exists locally, delete it if it does
     if [[ -e $FILE ]]; then
-	    rm $FILE
+	rm $FILE
+	echo -e "\nDeleting $FILE (locally) before proceeding with download from the bucket\n"
+    else
+	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
     fi
 
     # Perform test NUMREPEAT times
@@ -156,8 +162,9 @@ download_file_wp(){
 	
     done
 
-    # Kill Parcel process
-    kill $PPID
+    # Kill child process (parcel)
+    #kill $PPID
+    pkill -P $$
 }
 
 # download_file_wp(){}
