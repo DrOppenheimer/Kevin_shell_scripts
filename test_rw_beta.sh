@@ -154,6 +154,9 @@ download_file_wp(){
 	fi
 	
     done
+
+    # Kill Parcel process
+     kill $PPID
 }
 
 # download_file_wp(){}
@@ -203,6 +206,11 @@ download_file_wp(){
 # Test with file1
 upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 download_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
+download_file_wp $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+
+
+
+
 # for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
 # do
 #     file_check=`s3cmd ls s3://$MYBUCKET/$FILE1 | wc -l`
