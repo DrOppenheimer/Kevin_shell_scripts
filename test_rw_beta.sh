@@ -53,14 +53,14 @@ upload_file(){
 	my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	my_size_gb=`echo "$my_size/$DENOM"|bc -l`
 	START_TIME=$SECONDS
-	s3cmd sync ./$FILE s3://$BUCKET/
+	s3cmd sync -P ./$FILE s3://$BUCKET/
 	ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
 
 	# delete the uploaded file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
-	    s3cmd del s3://$BUCKET/$FILE
+	    s3cmd del s3://$BUCKET/$FILE    
 	fi
 
     done
