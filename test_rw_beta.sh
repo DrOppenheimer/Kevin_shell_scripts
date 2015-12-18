@@ -43,6 +43,7 @@ upload_file(){
     # Perform test NUMREPEAT times
     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
     do
+	
 	# delete the file if it already exists in the bucket
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
@@ -123,7 +124,15 @@ download_file_wp(){
     #parcel-udt2tcp localhost:9000 &
     #PID_2=$!
     
-    # check to make sure the file exists before downloading (check is with s3cmd to the object store, but dl is via Parcel through the Parcel server)
+     # check to make sure the file exists locally, delete it if it does
+    if [[ -e $FILE ]]; then
+	    rm $FILE
+    fi
+
+    # Perform test NUMREPEAT times
+    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+    do
+	
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
 	    #s3cmd get s3://Onel_lab/test
@@ -143,6 +152,7 @@ download_file_wp(){
 	if [[ $i -lt $NUMREPEATS ]]; then
 	    rm $FILE
 	fi
+	
     done
 }
 
