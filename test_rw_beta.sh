@@ -119,6 +119,7 @@ download_file_wp(){
 
     # start the parcel service
     # parcel-tcp2udt 192.170.232.76:9000 &
+    echo -e "\nparcel sever_port "$PARCELSEERVERPORT"\n"
     parcel-tcp2udt $PARCELSEERVERPORT &
     PPID=$!
     #parcel-udt2tcp localhost:9000 &
