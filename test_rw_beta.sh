@@ -48,6 +48,7 @@ upload_file(){
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
 	    s3cmd del s3://$BUCKET/$FILE
+	    echo -e "\n$FILE exists in bucket, delete before proceeding with upload\n"
 	fi
 	my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	my_size_gb=`echo "$my_size/$DENOM"|bc -l`
@@ -125,7 +126,7 @@ download_file_wp(){
     echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
     parcel-tcp2udt $PARCELSERVERIPPORT &# > ./parcel.log 2>&1 & # <--- script dies here
     #PPID=$!
-    #parcel-udt2tcp localhost:9000 &
+    parcel-udt2tcp $PARCELLOCALHOSTPORT &
     #PID_2=$!
     
      # check to make sure the file exists locally, delete it if it does
@@ -217,6 +218,7 @@ download_file_wp(){
 upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 download_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 download_file_wp $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+
 
 
 
