@@ -36,8 +36,8 @@ upload_file(){
     if [[ -e $FILE ]]; then
 	echo -e "$\nFILE exists locally, proceeding to upload\n"
     else
-	echo -e $FILE"\tDoes not exist locally" >> $LOG
-	exit
+	echo -e "$FILE\tDoes not exist locally" >> $LOG
+	exit 1 "$FILE\tDoes not exist locally"
     fi
 
     # Perform test NUMREPEAT times
