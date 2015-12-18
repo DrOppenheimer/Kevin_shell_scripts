@@ -119,8 +119,8 @@ download_file_wp(){
 
     # start the parcel service
     # parcel-tcp2udt 192.170.232.76:9000 &
-    echo -e "\nparcel sever_port "$PARCELSEERVERPORT"\n"
-    parcel-tcp2udt $PARCELSEERVERPORT &
+    echo -e "\nparcel sever_port "$PARCELSERVERIPPORT"\n"
+    parcel-tcp2udt $PARCELSERVERIPPORT &
     PPID=$!
     #parcel-udt2tcp localhost:9000 &
     #PID_2=$!
@@ -210,7 +210,6 @@ download_file_wp(){
 upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 download_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 download_file_wp $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
-
 
 
 
