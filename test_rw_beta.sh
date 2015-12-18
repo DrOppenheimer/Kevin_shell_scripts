@@ -3,8 +3,10 @@
 # number of times to perform the operation
 NUMREPEATS=1;
 MYLOG="rw_log.txt";
-
 MYBUCKET="test_bucket"
+PARCELSERVERIPPORT="192.170.232.76:9000";
+PARCELLOCALHOSTPORT="parcel.opensciencedatacloud.org:9000"
+
 
 
 #FILE1="ERR188416_2.fastq.gz"
@@ -20,17 +22,18 @@ echo -e "# File\tsize(Gb)\tOperation\tTransfer_time\tTransfer_rate(Gb/s)\tRepeat
 # upload file 1 (no parcel)
 
 # FUNCTION DEFS
+
+# function to upload data (using s3cmd sync without parcel)
 upload_file(){
     BUCKET=$1
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
     DENOM=$5
-    OPERATION="upload_without_parcel"
+    OPERATION="s3cmd_sync.download_without_parcel"
 
     # check to make sure the file exists locally, if not, exit
     if [[ -e $FILE ]]; then
-
     else
 	echo -e $FILE"\tDoes not exist locally" >> $LOG
 	exit
@@ -60,15 +63,16 @@ upload_file(){
     done
 }
 
+# function to download data (using s3cmd get without parcel)
 download_file(){
     BUCKET=$1
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
     DENOM=$5
-    OPERATION="download_without_parcel"
+    OPERATION="s3cmd_get.download_without_parcel"
 
-    # check to make sure the file exists locally
+    # check to make sure the file exists locally, delete it if it does
     if [[ -e $FILE ]]; then
 	    rm $FILE
     fi
@@ -76,7 +80,8 @@ download_file(){
     # Perform test NUMREPEAT times
     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
     do
-	
+
+	# check to make sure the file exists before downloading
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
 	    #s3cmd get s3://Onel_lab/test
@@ -99,37 +104,81 @@ download_file(){
     done
 }
 
-# upload_file_wp(){
-#     BUCKET=$1
-#     FILE=$2
-#     NUMREPEATS=$3
-#     LOG=$4
-#     DENOM=$5
-#     OPERATION="upload_with_parcel"
+# function to download data (usingwget with parcel)
+download_file_wp(){
+    BUCKET=$1
+    FILE=$2
+    NUMREPEATS=$3
+    LOG=$4
+    DENOM=$5
+    PARCELSERVERIPPORT=$6
+    PARCELLOCALHOSTPORT=$7
+    OPERATION="wget.download_with_parcel"
 
-#     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
-#     do
-# 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
-# 	if [[ $file_check -gt 0 ]]; then
-# 	    s3cmd del s3://$BUCKET/$FILE
-# 	fi
-# 	my_size=`ls -ltr $FILE | cut -d " " -f 5`
-# 	my_size_gb=`echo "$my_size/$DENOM"|bc -l`
-# 	START_TIME=$SECONDS
-# 	s3cmd sync ./$FILE s3://$BUCKET/
-# 	ELAPSED_TIME=$(($SECONDS - $START_TIME))
-# 	my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-# 	echo -e $FILE"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
-# 	s3cmd del s3://$BUCKET/$FILE
-#     done
-# }
+    # start the parcel service
+    # parcel-tcp2udt 192.170.232.76:9000 &
+    parcel-tcp2udt $PARCELSEERVERPORT &
+    PPID=$!
+    #parcel-udt2tcp localhost:9000 &
+    #PID_2=$!
+    
+    # check to make sure the file exists before downloading (check is with s3cmd to the object store, but dl is via Parcel through the Parcel server)
+	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+	if [[ $file_check -gt 0 ]]; then
+	    #s3cmd get s3://Onel_lab/test
+	    START_TIME=$SECONDS
+	    #s3cmd get s3://$BUCKET/$FILE
+	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
+	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
+	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+	    echo -e $FILE"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	else
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	fi
+
+	# delete the local file every iteration except the last
+	if [[ $i -lt $NUMREPEATS ]]; then
+	    rm $FILE
+	fi
+    done
+}
 
 # download_file_wp(){}
 
 
+# start process and siave pid to kill it later
+# foo &
+# FOO_PID=$!
+# # do other stuff
+# kill $FOO_PID
 
-
-
+# # Download and install
+# git clone https://github.com/LabAdvComp/parcel
+# cd parcel
+# sudo ./install
+# # add this to known hosts
+# sudo bash
+# echo "127.0.0.1 parcel.opensciencedatacloud.org" >> /etc/hosts
+# exit
+# # start parcel in a terminal session:
+# parcel-tcp2udt 192.170.232.76:9000
+# # in another session, use curl, wget or the like -- this is a test -- address is for an S3 object in a bucket
+# curl https://parcel.opensciencedatacloud.org:9000/imabucket/testobject.txt
+##########
+# # # From Satish 12-3-15 # INSTALLING AND USING PARCEL
+# # # Install
+# # python setup.py develop
+# # sudo apt-get install python-pip
+# # sudo python setup.py develop
+# # 
+# # # Setup
+# # sudo vi /etc/hosts  - add 127.0.0.1 parcel.opensciencedatacloud.org
+# # parcel-tcp2udt 192.170.232.76:9000 &
+# # parcel-udt2tcp localhost:9000 &
+# # wget https://parcel.opensciencedatacloud.org:9000/asgc-geuvadis/ERR188021.tar.gz
+# # # so if u see here.. I have  'python setup.py develop' twice.. this is because it failed first and then I had to do a apt-get install python-pip
 
 
 
