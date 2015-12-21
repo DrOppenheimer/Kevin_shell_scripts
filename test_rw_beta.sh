@@ -332,8 +332,10 @@ download_file_wp(){
     OPERATION="wget.download_with_parcel"
 
     # kill parcel if it is already running
-    pkill parcel-tcp2udt
-    pkill parcel-udt2tcp
+    #pkill parcel-tcp2udt
+    #pkill parcel-udt2tcp
+    pkill parcel-*
+    sleep 5s
     # start the parcel service
     echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
     parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
