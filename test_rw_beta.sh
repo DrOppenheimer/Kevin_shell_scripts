@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # number of times to perform the operation
-NUMREPEATS=5;
+NUMREPEATS=2;
 MYLOG="rw_log.txt";
 MYBUCKET="test_bucket"
 PARCELSERVERIPPORT="192.170.232.76:9000";
@@ -37,7 +37,7 @@ upload_file(){
 	echo -e "$\n$FILE exists locally, proceeding to upload\n"
     else
 	echo -e "\n$FILE Does not exist locally" >> $LOG
-	exit 1 "$FILE Does not exist locally"
+	exit 1 
     fi
 
     # Perform test NUMREPEAT times
@@ -53,7 +53,8 @@ upload_file(){
 	my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	my_size_gb=`echo "$my_size/$DENOM"|bc -l`
 	START_TIME=$SECONDS
-	s3cmd sync -P ./$FILE s3://$BUCKET/
+	#s3cmd sync -P ./$FILE s3://$BUCKET/
+	s3cmd put -P ./$FILE s3://$BUCKET/
 	ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
@@ -111,7 +112,213 @@ download_file(){
     done
 }
 
-# function to download data (usingwget with parcel)
+
+
+########################################################################################
+########################################################################################
+########################################################################################
+########################################################################################
+########################################################################################
+
+# # function to upload data (using wput with parcel)
+# upload_file_wp(){
+#     BUCKET=$1
+#     FILE=$2
+#     NUMREPEATS=$3
+#     LOG=$4
+#     DENOM=$5
+#     PARCELSERVERIPPORT=$6
+#     PARCELLOCALHOSTPORT=$7
+#     OPERATION="wget.download_with_parcel"
+
+
+#     curl -X PUT -T $FILE \
+# 	     -H "Host: $bucket.s3.amazonaws.com" \
+# 	     #-H "Date: $date" \
+# 	     #-H "Content-Type: $content_type" \
+# 	     -H "x-amz-acl:public-read" \
+# 	     -H "Authorization: AWS ${S3KEY}:$signature" \
+# 	     "https://$bucket.s3.amazonaws.com$aws_path$file"
+
+
+
+#     wget https://parcel.opensciencedatacloud.org:9000/asgc-geuvadis/ERR188021.tar.gz
+    
+#     function putS3
+#     {
+# 	path=$1
+# 	file=$2
+# 	aws_path=$3
+# 	bucket='my-aws-bucket'
+# 	date=$(date +"%a, %d %b %Y %T %z")
+# 	acl="x-amz-acl:public-read"
+# 	content_type='application/x-compressed-tar'
+# 	string="PUT\n\n$content_type\n$date\n$acl\n/$bucket$aws_path$file"
+# 	signature=$(echo -en "${string}" | openssl sha1 -hmac "${S3SECRET}" -binary | base64)
+# 	curl -X PUT -T "$path/$file" \
+# 	     -H "Host: $bucket.s3.amazonaws.com" \
+# 	     -H "Date: $date" \
+# 	     -H "Content-Type: $content_type" \
+# 	     -H "$acl" \
+# 	     -H "Authorization: AWS ${S3KEY}:$signature" \
+# 	     "https://$bucket.s3.amazonaws.com$aws_path$file"
+#     }
+
+    
+#     # start the parcel service
+#     echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
+#     parcel-tcp2udt $PARCELSERVERIPPORT &
+#     parcel-udt2tcp $PARCELLOCALHOSTPORT &
+    
+#      # check to make sure the file exists locally, delete it if it does
+#     if [[ -e $FILE ]]; then
+# 	rm $FILE
+# 	echo -e "\nDeleting $FILE (locally) before proceeding with download from the bucket\n"
+#     else
+# 	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
+#     fi
+
+#     # Perform test NUMREPEAT times
+#     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+#     do
+	
+# 	# delete the file if it already exists in the bucket
+# 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+# 	if [[ $file_check -gt 0 ]]; then
+# 	    s3cmd del s3://$BUCKET/$FILE
+# 	    echo -e "\n$FILE exists in bucket, delete before proceeding with upload\n"
+# 	fi
+
+
+
+# for file in "$path"/*; do
+#   putS3 "$path" "${file##*/}" "/path/on/s3/to/files/"
+# done
+
+
+
+	
+
+# S3KEY="my aws key"
+# S3SECRET="my aws secret" # pass these in
+
+# ~/.s3cfg
+
+
+
+# access_key=RNC0
+# secret_key=bRb8osnG7rpvyof0
+# host_bucket_name=asg
+# host_base=griffin-objstore.opensciencedatacloud.org
+
+
+
+
+# function putS3
+# {
+#   path=$1
+#   file=$2
+#   aws_path=$3
+#   bucket='my-aws-bucket'
+#   date=$(date +"%a, %d %b %Y %T %z")
+#   acl="x-amz-acl:public-read"
+#   content_type='application/x-compressed-tar'
+#   string="PUT\n\n$content_type\n$date\n$acl\n/$bucket$aws_path$file"
+#   signature=$(echo -en "${string}" | openssl sha1 -hmac "${S3SECRET}" -binary | base64)
+#   curl -X PUT -T "$path/$file" \
+#     -H "Host: $bucket.s3.amazonaws.com" \
+#     -H "Date: $date" \
+#     -H "Content-Type: $content_type" \
+#     -H "$acl" \
+#     -H "Authorization: AWS ${S3KEY}:$signature" \
+#     "https://$bucket.s3.amazonaws.com$aws_path$file"
+# }
+
+# for file in "$path"/*; do
+#   putS3 "$path" "${file##*/}" "/path/on/s3/to/files/"
+# done
+	
+
+	
+
+# 	# file=/path/to/file/to/upload.tar.gz
+#         # bucket=your-bucket
+#         # resource="/${bucket}/${file}"
+# # contentType="application/x-compressed-tar"
+# # dateValue=`date -R`
+# # stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}"
+# # s3Key=xxxxxxxxxxxxxxxxxxxx
+# # s3Secret=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# # signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
+# # curl -X PUT -T "${file}" \
+# #   -H "Host: ${bucket}.s3.amazonaws.com" \
+# #   -H "Date: ${dateValue}" \
+# #   -H "Content-Type: ${contentType}" \
+# #   -H "Authorization: AWS ${s3Key}:${signature}" \
+# #   https://${bucket}.s3.amazonaws.com/${file}
+
+
+
+
+
+	
+# 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+# 	if [[ $file_check -gt 0 ]]; then
+# 	    #s3cmd get s3://Onel_lab/test
+# 	    START_TIME=$SECONDS
+# 	    #s3cmd get s3://$BUCKET/$FILE
+# 	    echo -e "\nRunning: \"wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE\" \n"
+# 	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
+# 	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+# 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+# 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
+# 	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+# 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+# 	else
+# 	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+# 	fi
+
+# 	# delete the local file every iteration except the last
+# 	if [[ $i -lt $NUMREPEATS ]]; then
+# 	    rm $FILE
+# 	fi
+	
+#     done
+
+#     # Kill child process (parcel)
+#     #kill $PPID
+#     pkill -P $$
+# }
+
+
+
+
+# # file=/path/to/file/to/upload.tar.gz
+# # bucket=your-bucket
+# # resource="/${bucket}/${file}"
+# # contentType="application/x-compressed-tar"
+# # dateValue=`date -R`
+# # stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}"
+# # s3Key=xxxxxxxxxxxxxxxxxxxx
+# # s3Secret=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+# # signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${s3Secret} -binary | base64`
+# # curl -X PUT -T "${file}" \
+# #   -H "Host: ${bucket}.s3.amazonaws.com" \
+# #   -H "Date: ${dateValue}" \
+# #   -H "Content-Type: ${contentType}" \
+# #   -H "Authorization: AWS ${s3Key}:${signature}" \
+# #   https://${bucket}.s3.amazonaws.com/${file}
+
+
+
+########################################################################################
+########################################################################################
+########################################################################################
+########################################################################################
+########################################################################################
+
+
+# function to download data (using wget with parcel)
 download_file_wp(){
     BUCKET=$1
     FILE=$2
@@ -123,12 +330,9 @@ download_file_wp(){
     OPERATION="wget.download_with_parcel"
 
     # start the parcel service
-    # parcel-tcp2udt 192.170.232.76:9000 &
     echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
     parcel-tcp2udt $PARCELSERVERIPPORT &# > ./parcel.log 2>&1 & # <--- script dies here
-    #PPID=$!
     parcel-udt2tcp $PARCELLOCALHOSTPORT &
-    #PID_2=$!
     
      # check to make sure the file exists locally, delete it if it does
     if [[ -e $FILE ]]; then
@@ -170,7 +374,8 @@ download_file_wp(){
     pkill -P $$
 }
 
-
+# use s3 command
+# create bucket that is public read/write?
 
 
 
@@ -327,13 +532,13 @@ upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 download_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
 download_file_wp $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
 
-upload_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
-download_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
-download_file_wp $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+#upload_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
+#download_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
+#download_file_wp $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
 
-upload_file $MYBUCKET $FILE3 $NUMREPEATS $MYLOG $DENOM
-download_file $MYBUCKET $FILE3 $NUMREPEATS $MYLOG $DENOM
-download_file_wp $MYBUCKET $FILE3 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+#upload_file $MYBUCKET $FILE3 $NUMREPEATS $MYLOG $DENOM
+#download_file $MYBUCKET $FILE3 $NUMREPEATS $MYLOG $DENOM
+#download_file_wp $MYBUCKET $FILE3 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
 
 
 
