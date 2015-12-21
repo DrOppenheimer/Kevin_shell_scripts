@@ -337,6 +337,7 @@ download_file_wp(){
     echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
     parcel-tcp2udt $PARCELSERVERIPPORT &# > ./parcel.log 2>&1 & # <--- script dies here
     parcel-udt2tcp $PARCELLOCALHOSTPORT &
+    sleep 5s
     
      # check to make sure the file does not exist locally, delete it if it does
     if [[ -e $FILE ]]; then
