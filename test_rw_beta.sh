@@ -10,6 +10,7 @@ PARCELLOCALHOSTPORT="parcel.opensciencedatacloud.org:9000"
 
 
 #FILE1="ERR188416_2.fastq.gz"
+FILE0="ERR_tar.12Mb.gz"
 FILE1="ERR_tar.1Gb.gz"
 FILE2="ERR_tar.11Gb.gz"
 FILE3="ERR_tar.59Gb.gz"
@@ -40,11 +41,11 @@ upload_file(){
 	exit 1 
     fi
 
-    # Perform test NUMREPEAT times
+    # Perform upload NUMREPEAT times
     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
     do
 	
-	# delete the file if it already exists in the bucket
+	# delete the file in the bucket if it already exists in the bucket
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
 	    s3cmd del s3://$BUCKET/$FILE
@@ -54,7 +55,7 @@ upload_file(){
 	my_size_gb=`echo "$my_size/$DENOM"|bc -l`
 	START_TIME=$SECONDS
 	#s3cmd sync -P ./$FILE s3://$BUCKET/
-	s3cmd put -P ./$FILE s3://$BUCKET/
+	s3cmd put -P ./$FILE s3://$BUCKET/ # note - upload is -P -- public access
 	ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
@@ -76,15 +77,15 @@ download_file(){
     DENOM=$5
     OPERATION="s3cmd_get.download_without_parcel"
 
-    # check to make sure the file exists locally, delete it if it does
+    # check to make sure the file does not exist locally, delete it if it does
     if [[ -e $FILE ]]; then
 	rm $FILE
-	echo -e "\nDeleting $FILE (locally) before proceeding with download from the bucket\n"
+	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
     else
 	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
     fi
 
-    # Perform test NUMREPEAT times
+    # Perform download NUMREPEAT times
     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
     do
 
@@ -334,10 +335,10 @@ download_file_wp(){
     parcel-tcp2udt $PARCELSERVERIPPORT &# > ./parcel.log 2>&1 & # <--- script dies here
     parcel-udt2tcp $PARCELLOCALHOSTPORT &
     
-     # check to make sure the file exists locally, delete it if it does
+     # check to make sure the file does not exist locally, delete it if it does
     if [[ -e $FILE ]]; then
 	rm $FILE
-	echo -e "\nDeleting $FILE (locally) before proceeding with download from the bucket\n"
+	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
     else
 	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
     fi
@@ -528,9 +529,9 @@ download_file_wp(){
 # MAIN
 
 # Test with file1
-upload_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
-download_file $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM
-download_file_wp $MYBUCKET $FILE1 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+upload_file $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM
+download_file $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM
+download_file_wp $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
 
 #upload_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
 #download_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
