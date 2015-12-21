@@ -336,6 +336,7 @@ download_file_wp(){
     # start the parcel service
     echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
     parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
+    sleep 5s
     parcel-udt2tcp $PARCELLOCALHOSTPORT &
     sleep 5s
     
