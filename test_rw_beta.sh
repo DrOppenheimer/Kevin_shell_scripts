@@ -335,7 +335,7 @@ download_file_wp(){
     pkill parcel*
     # start the parcel service
     echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
-    parcel-tcp2udt $PARCELSERVERIPPORT &# > ./parcel.log 2>&1 & # <--- script dies here
+    parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
     parcel-udt2tcp $PARCELLOCALHOSTPORT &
     sleep 5s
     
@@ -534,8 +534,8 @@ download_file_wp(){
 # MAIN
 
 # Test with file1
-upload_file $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM
-download_file $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM
+#upload_file $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM
+#download_file $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM
 download_file_wp $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
 
 #upload_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
