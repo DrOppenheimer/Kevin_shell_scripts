@@ -372,7 +372,8 @@ download_file_wp(){
 
     # Kill child process (parcel)
     #kill $PPID
-    pkill -P $$
+    #pkill -P $$
+    pkill parcel*
 }
 
 # use s3 command
