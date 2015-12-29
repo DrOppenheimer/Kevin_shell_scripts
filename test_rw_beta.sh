@@ -71,6 +71,7 @@ upload_file(){
 
 # function to download data (using s3cmd get without parcel)
 download_file(){
+    
     BUCKET=$1
     FILE=$2
     NUMREPEATS=$3
@@ -362,6 +363,7 @@ download_file_wp(){
 	    #s3cmd get s3://$BUCKET/$FILE
 	    echo -e "\nRunning: \"wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE\" \n"
 	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
+	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
 	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
@@ -500,8 +502,19 @@ download_file_wp(){
 # # do other stuff
 # kill $FOO_PID
 
-# # Download and install parcel and its requirements:
+# Kevin 12-28-15
+### Download and install parcel and its requirements:
 # sudo apt-get install python-pip
+# sudo pip install -e 'git+https://github.com/LabAdvComp/parcel#egg=parcel'
+### Start parcel in screen
+# parcel-tcp2udt 192.170.232.76:9000 &
+# parcel-udt2tcp localhost:9000 &
+### Test
+#  wget https://parcel.opensciencedatacloud.org:9000/asgc-geuvadis/ERR188021.tar.gz
+### If you are using /mnt, make sure you have premissions
+# sudo chown ubuntu:ubuntu /mnt
+
+
 # sudo python setup.py develop
 # git clone https://github.com/LabAdvComp/parcel
 # cd parcel
@@ -517,8 +530,9 @@ download_file_wp(){
 ##########
 # # # From Satish 12-3-15 # INSTALLING AND USING PARCEL
 # # # Install
-# # python setup.py develop
-# # sudo apt-get install python-pip
+#### python setup.py develop
+# # sudo apt-get update
+# # sudo apt-get install -y python-pip
 # # sudo python setup.py develop
 # # 
 # # # Setup
