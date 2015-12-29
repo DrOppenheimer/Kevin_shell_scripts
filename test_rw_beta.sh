@@ -7,7 +7,17 @@ MYBUCKET="test_bucket"
 PARCELSERVERIPPORT="192.170.232.76:9000";
 PARCELLOCALHOSTPORT="parcel.opensciencedatacloud.org:9000"
 
+# Add s3cmd dl # done
+# Add s3cmd ul # done
+# Add wget dl
+# Add wget dl with parcel # done
 
+
+
+# Add s3cmd dl with parcel # possible?
+# Add s3cmd ul with parcel # possible?
+# ...
+# with boto?
 
 #FILE1="ERR188416_2.fastq.gz"
 FILE0="ERR_tar.12Mb.gz"
@@ -25,7 +35,7 @@ echo -e "# File\tDate_stamp\tsize(Gb)\tOperation\tTransfer_time\tTransfer_rate(G
 # FUNCTION DEFS
 
 # function to upload data (using s3cmd sync without parcel)
-upload_file(){
+upload_file_s3cmd(){
     BUCKET=$1
     FILE=$2
     NUMREPEATS=$3
@@ -70,7 +80,7 @@ upload_file(){
 }
 
 # function to download data (using s3cmd get without parcel)
-download_file(){
+download_file_s3cmd(){
     
     BUCKET=$1
     FILE=$2
@@ -320,9 +330,73 @@ download_file(){
 ########################################################################################
 ########################################################################################
 
+# function to download with wget without parcel
+download_file_wget(){
+    BUCKET=$1
+    FILE=$2
+    NUMREPEATS=$3
+    LOG=$4
+    DENOM=$5
+    OPERATION="wget.download_without_parcel"
+
+    # kill parcel if it is already running
+    #pkill parcel-tcp2udt
+    #pkill parcel-udt2tcp
+    pkill parcel-*
+    sleep 5s
+    # start the parcel service
+    #echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
+    #parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
+    #sleep 5s
+    #parcel-udt2tcp $PARCELLOCALHOSTPORT &
+    #sleep 5s
+    
+     # check to make sure the file does not exist locally, delete it if it does
+    if [[ -e $FILE ]]; then
+	rm $FILE
+	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
+    else
+	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
+    fi
+
+    # Perform test NUMREPEAT times
+    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+    do
+	
+	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+	if [[ $file_check -gt 0 ]]; then
+	    #s3cmd get s3://Onel_lab/test
+	    START_TIME=$SECONDS
+	    s3cmd get s3://$BUCKET/$FILE
+	    echo -e "\nRunning: \" s3cmd get s3://$BUCKET/$FILE\" \n"
+	    wget s3://$BUCKET/$FILE
+	    #wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
+	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
+	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
+	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	else
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	fi
+
+	# delete the local file every iteration except the last
+	if [[ $i -lt $NUMREPEATS ]]; then
+	    rm $FILE
+	fi
+	
+    done
+
+    # Kill parcel processes
+    # pkill parcel*
+}
+
+
+
 
 # function to download data (using wget with parcel)
-download_file_wp(){
+download_file_wget_wp(){
     BUCKET=$1
     FILE=$2
     NUMREPEATS=$3
@@ -380,15 +454,18 @@ download_file_wp(){
 	
     done
 
-    # Kill child process (parcel)
-    #kill $PPID
-    #pkill -P $$
+    # Kill parcel processes
     pkill parcel*
 }
+
 
 # use s3 command
 # create bucket that is public read/write?
 
+
+
+    #kill $PPID
+    #pkill -P $$
 
 
 # # function to upload data (using wput with parcel)
@@ -554,7 +631,9 @@ download_file_wp(){
 # Test with file1
 #upload_file $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM
 #download_file $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM
-download_file_wp $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+download_file_wget_wp $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM
+download_file_wget $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+
 
 #upload_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
 #download_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
