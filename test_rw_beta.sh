@@ -6,24 +6,40 @@ MYLOG="rw_log.txt";
 MYBUCKET="test_bucket"
 PARCELSERVERIPPORT="192.170.232.76:9000";
 PARCELLOCALHOSTPORT="parcel.opensciencedatacloud.org:9000"
+ACCESSKEY="$ACCESSKEY"
+SECRETKEY="$SECRETKEY"
+GATEWAY="$GATEWAY"
 
-# Add s3cmd dl # done
-# Add s3cmd ul # done
-# Add wget dl
-# Add wget dl with parcel # done
+echo "ACCESSKEY = $ACCESSKEY"
+echo "SECRETKEY = $SECRETKEY"
+echo "GATEWAY   = $GATEWAY"
 
+# Here is a list of the protocol combinations that we want to be able to test
+# I've creatd a function for each, then call them in the main section beneath
+# the functions defs
+# (1) Add s3cmd dl               # DONE
+# (2) Add s3cmd ul               # DONE
+# (3) Add s3cmd dl with parcel   # possible?
+# (4) Add s3cmd ul with parcel   # possible?
+# (5) Add wget dl                # possible? # under development 
+# (6) Add wput ul                # possible?
+# (7) Add wget dl with parcel    # DONE
+# (8) Add wput ul with parcel    # possible?
+# (9) Add boto dl                # Uses simple boto script boto_dl.py
+# (10) Add boto ul               # Uses simple boto script boto_ul.py
+# (11) Add boto dl with parcel   # Uses simple boto script boto_dl.py
+# (12) Add boto ul with parcel   # Uses simple boto script boto_ul.py
 
-
-# Add s3cmd dl with parcel # possible?
-# Add s3cmd ul with parcel # possible?
 # ...
-# with boto?
+# with udr?
+# with rsync?
 
+# Files to use for the upload and download tests
 #FILE1="ERR188416_2.fastq.gz"
 FILE0="ERR_tar.12Mb.gz"
 FILE1="ERR_tar.1Gb.gz"
 FILE2="ERR_tar.11Gb.gz"
-FILE3="ERR_tar.59Gb.gz"
+#FILE3="ERR_tar.59Gb.gz"
 
 DENOM=`echo 2^30 | bc` # i.e. bytes in GB
 
@@ -31,10 +47,60 @@ echo -e "# test_rw.sh log\t"`date` > $MYLOG
 echo -e "# File\tDate_stamp\tsize(Gb)\tOperation\tTransfer_time\tTransfer_rate(Gb/s)\tRepeat" >> $MYLOG 
 
 # upload file 1 (no parcel)
+########################################################################################################
+### FUNCTION DEFS
+########################################################################################################
 
-# FUNCTION DEFS
+########################################################################################################
+# (1) function to download data (using s3cmd get without parcel) # THIS WORKS
+download_file_s3cmd(){
+  
+    BUCKET=$1
+    FILE=$2
+    NUMREPEATS=$3
+    LOG=$4
+    DENOM=$5
+    OPERATION="s3cmd_get.download_without_parcel"
 
-# function to upload data (using s3cmd sync without parcel)
+    # check to make sure the file does not exist locally, delete it if it does
+    if [[ -e $FILE ]]; then
+	rm $FILE
+	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
+    else
+	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
+    fi
+
+    # Perform download NUMREPEAT times
+    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+    do
+
+	# check to make sure the file exists before downloading
+	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+	if [[ $file_check -gt 0 ]]; then
+	    #s3cmd get s3://Onel_lab/test
+	    START_TIME=$SECONDS
+	    echo -e "\nRunning \"s3cmd get s3://$BUCKET/$FILE\"\n"
+	    s3cmd get s3://$BUCKET/$FILE
+	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
+	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	else
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	fi
+
+	# delete the local file every iteration except the last
+	if [[ $i -lt $NUMREPEATS ]]; then
+	    rm $FILE
+	fi
+	
+    done
+}
+########################################################################################################
+
+########################################################################################################
+# (2) function to upload data (using s3cmd sync without parcel) # THIS WORKS
 upload_file_s3cmd(){
     BUCKET=$1
     FILE=$2
@@ -78,18 +144,111 @@ upload_file_s3cmd(){
 
     done
 }
+########################################################################################################
 
-# function to download data (using s3cmd get without parcel)
-download_file_s3cmd(){
+########################################################################################################
+# (3) function to download with s3cmd through parcel (Is this possible?)
+
+########################################################################################################
+
+########################################################################################################
+# (4) function to upload with s3cmd through parcel (Is this possible?)
+
+########################################################################################################
+
+########################################################################################################
+# (5) function to download with wget (no parcel) # This function doesn't work yet
+# download_file_wget(){
+#     BUCKET=$1
+#     FILE=$2
+#     NUMREPEATS=$3
+#     LOG=$4
+#     DENOM=$5
+#     OPERATION="wget.download_without_parcel"
+
+#     # kill parcel if it is already running
+#     #pkill parcel-tcp2udt
+#     #pkill parcel-udt2tcp
+#     pkill parcel-*
+#     sleep 5s
+#     # start the parcel service
+#     #echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
+#     #parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
+#     #sleep 5s
+#     #parcel-udt2tcp $PARCELLOCALHOSTPORT &
+#     #sleep 5s
     
+#      # check to make sure the file does not exist locally, delete it if it does
+#     if [[ -e $FILE ]]; then
+# 	rm $FILE
+# 	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
+#     else
+# 	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
+#     fi
+
+#     # Perform test NUMREPEAT times
+#     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+#     do
+	
+# 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+# 	if [[ $file_check -gt 0 ]]; then
+# 	    #s3cmd get s3://Onel_lab/test
+# 	    START_TIME=$SECONDS
+# 	    #s3cmd get s3://$BUCKET/$FILE
+# 	    #echo -e "\nRunning: \"s3cmd get s3://$BUCKET/$FILE\" \n"
+# 	    wget s3://$BUCKET/$FILE
+# 	    #wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
+# 	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
+# 	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+# 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+# 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
+# 	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+# 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+# 	else
+# 	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+# 	fi
+
+# 	# delete the local file every iteration except the last
+# 	if [[ $i -lt $NUMREPEATS ]]; then
+# 	    rm $FILE
+# 	fi
+	
+#     done
+    
+# }
+
+########################################################################################################
+
+########################################################################################################
+# (6) Upload with wput (no parcel)
+
+########################################################################################################
+
+########################################################################################################
+# (7) Download with wget using parcel # THIS WORKS
+download_file_wget_wp(){
     BUCKET=$1
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
     DENOM=$5
-    OPERATION="s3cmd_get.download_without_parcel"
+    PARCELSERVERIPPORT=$6
+    PARCELLOCALHOSTPORT=$7
+    OPERATION="wget.download_with_parcel"
 
-    # check to make sure the file does not exist locally, delete it if it does
+    # kill parcel if it is already running
+    #pkill parcel-tcp2udt
+    #pkill parcel-udt2tcp
+    pkill parcel-*
+    sleep 5s
+    # start the parcel service
+    echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
+    parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
+    sleep 5s
+    parcel-udt2tcp $PARCELLOCALHOSTPORT &
+    sleep 5s
+    
+     # check to make sure the file does not exist locally, delete it if it does
     if [[ -e $FILE ]]; then
 	rm $FILE
 	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
@@ -97,17 +256,18 @@ download_file_s3cmd(){
 	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
     fi
 
-    # Perform download NUMREPEAT times
+    # Perform test NUMREPEAT times
     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
     do
-
-	# check to make sure the file exists before downloading
+	
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
 	    #s3cmd get s3://Onel_lab/test
 	    START_TIME=$SECONDS
-	    echo -e "\nRunning \"s3cmd get s3://$BUCKET/$FILE\"\n"
-	    s3cmd get s3://$BUCKET/$FILE
+	    #s3cmd get s3://$BUCKET/$FILE
+	    echo -e "\nRunning: \"wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE\" \n"
+	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
+	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
 	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
@@ -123,15 +283,215 @@ download_file_s3cmd(){
 	fi
 	
     done
+
+    # Kill parcel processes
+    pkill parcel*
 }
+########################################################################################################
+
+########################################################################################################
+# (8) Upload with wput using parcel
+
+########################################################################################################
+
+########################################################################################################
+# (9) Boto download (without parcel)
+download_file_boto(){
+    BUCKET=$1
+    FILE=$2
+    NUMREPEATS=$3
+    LOG=$4
+    DENOM=$5
+    OPERATION="Boto.download_without"
+    
+    # check to make sure the file does not exist locally, delete it if it does
+    if [[ -e $FILE ]]; then
+	rm $FILE
+	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
+    else
+	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
+    fi
+    
+    # Perform test NUMREPEAT times
+    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+    do
+	
+	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+	if [[ $file_check -gt 0 ]]; then
+	    #s3cmd get s3://Onel_lab/test
+	    START_TIME=$SECONDS
+	    #s3cmd get s3://$BUCKET/$FILE
+	    echo -e "\nRunning: \"wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE\" \n"
+	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
+	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
+	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
+	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	else
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	fi
+
+	# delete the local file every iteration except the last
+	if [[ $i -lt $NUMREPEATS ]]; then
+	    rm $FILE
+	fi
+	
+    done
+
+
+    
+
+    }
 
 
 
-########################################################################################
-########################################################################################
-########################################################################################
-########################################################################################
-########################################################################################
+
+
+
+
+
+    # kill parcel if it is already running
+    #pkill parcel-tcp2udt
+    #pkill parcel-udt2tcp
+    pkill parcel-*
+    sleep 5s
+    # start the parcel service
+    echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
+    parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
+    sleep 5s
+    parcel-udt2tcp $PARCELLOCALHOSTPORT &
+    sleep 5s
+    
+     # check to make sure the file does not exist locally, delete it if it does
+    if [[ -e $FILE ]]; then
+	rm $FILE
+	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
+    else
+	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
+    fi
+
+    # Perform test NUMREPEAT times
+    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+    do
+	
+	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+	if [[ $file_check -gt 0 ]]; then
+	    # boto_dl.py -f ERR_tar.12Mb.gz -a RNC0Y3H3W9M9P4I4VAFM -s bRb8osnG7rpvyof05HGKZKwHtFSybmfVizVp0QDp -b test_bucket -g griffin-objstore.opensciencedatacloud.org
+	    START_TIME=$SECONDS
+	    echo -e "\nRunning: \"  boto_dl.py -F $FILE -a   \" \n"
+	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
+	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
+	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
+	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	else
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	fi
+
+	# delete the local file every iteration except the last
+	if [[ $i -lt $NUMREPEATS ]]; then
+	    rm $FILE
+	fi
+	
+    done
+
+    # Kill parcel processes
+    pkill parcel*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+NUMREPEATS=2;
+MYLOG="rw_log.txt";
+MYBUCKET="test_bucket"
+PARCELSERVERIPPORT="192.170.232.76:9000";
+PARCELLOCALHOSTPORT="parcel.opensciencedatacloud.org:9000"
+
+
+
+
+########################################################################################################
+
+########################################################################################################
+# (10) Boto upload (without parcel)
+
+########################################################################################################
+
+########################################################################################################
+# (11) Boto download with parcel
+
+########################################################################################################
+
+########################################################################################################
+# (12) Boto upload with parcel
+
+########################################################################################################
+
+
+########################################################################################################
+########################################################################################################
+########################################################################################################
+### MAIN
+
+### Main loop interates through the list of files - cut out 56GB as it may have run into a mem error
+### Need to characterize this error in the future.
+
+#for FILE in $FILE0 $FILE1 $FILE2;
+for FILE in $FILE0
+do
+    # (1) Add s3cmd dl               # DONE
+    download_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM
+    # (2) Add s3cmd ul               # DONE
+    upload_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM
+    # (3) Add s3cmd dl with parcel   # possible?
+    
+    # (4) Add s3cmd ul with parcel   # possible?
+    
+    # (5) Add wget dl                # possible? # under development 
+    # download_file_wget $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+    # (6) Add wput ul                # possible?
+    
+    # (7) Add wget dl with parcel    # DONE
+    # -> #download_file_wget_wp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+    # (8) Add wput ul with parcel    # possible?
+    
+    # (9) Add boto dl                #
+    
+    # (10) Add boto ul               #
+    
+    # (11) Add boto dl with parcel   #
+    
+    # (12) Add boto ul with parcel   #
+    
+    download_file_wget_wp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM   
+done
+
+
+
+
+
+########################################################################################################
+########################################################################################################
+########################################################################################################
+### NOTES AND ADDITIONAL COMMENTS
+
 
 # # function to upload data (using wput with parcel)
 # upload_file_wp(){
@@ -330,133 +690,12 @@ download_file_s3cmd(){
 ########################################################################################
 ########################################################################################
 
-# function to download with wget without parcel
-download_file_wget(){
-    BUCKET=$1
-    FILE=$2
-    NUMREPEATS=$3
-    LOG=$4
-    DENOM=$5
-    OPERATION="wget.download_without_parcel"
-
-    # kill parcel if it is already running
-    #pkill parcel-tcp2udt
-    #pkill parcel-udt2tcp
-    pkill parcel-*
-    sleep 5s
-    # start the parcel service
-    #echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
-    #parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
-    #sleep 5s
-    #parcel-udt2tcp $PARCELLOCALHOSTPORT &
-    #sleep 5s
-    
-     # check to make sure the file does not exist locally, delete it if it does
-    if [[ -e $FILE ]]; then
-	rm $FILE
-	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
-    else
-	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
-    fi
-
-    # Perform test NUMREPEAT times
-    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
-    do
-	
-	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
-	if [[ $file_check -gt 0 ]]; then
-	    #s3cmd get s3://Onel_lab/test
-	    START_TIME=$SECONDS
-	    s3cmd get s3://$BUCKET/$FILE
-	    echo -e "\nRunning: \" s3cmd get s3://$BUCKET/$FILE\" \n"
-	    wget s3://$BUCKET/$FILE
-	    #wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
-	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
-	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
-	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
-	else
-	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
-	fi
-
-	# delete the local file every iteration except the last
-	if [[ $i -lt $NUMREPEATS ]]; then
-	    rm $FILE
-	fi
-	
-    done
-
-    # Kill parcel processes
-    # pkill parcel*
-}
+# function to download with wget without parcel # This is not functional yet
 
 
 
 
-# function to download data (using wget with parcel)
-download_file_wget_wp(){
-    BUCKET=$1
-    FILE=$2
-    NUMREPEATS=$3
-    LOG=$4
-    DENOM=$5
-    PARCELSERVERIPPORT=$6
-    PARCELLOCALHOSTPORT=$7
-    OPERATION="wget.download_with_parcel"
-
-    # kill parcel if it is already running
-    #pkill parcel-tcp2udt
-    #pkill parcel-udt2tcp
-    pkill parcel-*
-    sleep 5s
-    # start the parcel service
-    echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
-    parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
-    sleep 5s
-    parcel-udt2tcp $PARCELLOCALHOSTPORT &
-    sleep 5s
-    
-     # check to make sure the file does not exist locally, delete it if it does
-    if [[ -e $FILE ]]; then
-	rm $FILE
-	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
-    else
-	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
-    fi
-
-    # Perform test NUMREPEAT times
-    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
-    do
-	
-	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
-	if [[ $file_check -gt 0 ]]; then
-	    #s3cmd get s3://Onel_lab/test
-	    START_TIME=$SECONDS
-	    #s3cmd get s3://$BUCKET/$FILE
-	    echo -e "\nRunning: \"wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE\" \n"
-	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
-	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
-	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
-	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
-	else
-	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
-	fi
-
-	# delete the local file every iteration except the last
-	if [[ $i -lt $NUMREPEATS ]]; then
-	    rm $FILE
-	fi
-	
-    done
-
-    # Kill parcel processes
-    pkill parcel*
-}
+# function to download data (using wget with parcel) # THIS WORKS
 
 
 # use s3 command
@@ -631,8 +870,6 @@ download_file_wget_wp(){
 # Test with file1
 #upload_file $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM
 #download_file $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM
-download_file_wget_wp $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM
-download_file_wget $MYBUCKET $FILE0 $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
 
 
 #upload_file $MYBUCKET $FILE2 $NUMREPEATS $MYLOG $DENOM
