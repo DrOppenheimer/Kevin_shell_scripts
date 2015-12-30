@@ -41,10 +41,11 @@ FILE1="ERR_tar.1Gb.gz"
 FILE2="ERR_tar.11Gb.gz"
 #FILE3="ERR_tar.59Gb.gz"
 
-DENOM=`echo 2^30 | bc` # i.e. bytes in GB
+DENOMGB=`echo 2^30 | bc` # i.e. bytes in GB
+DENOMMB=`echo 2^20 | bc` # i.e. bytes in MB
 
 echo -e "# test_rw.sh log\t"`date` > $MYLOG
-echo -e "# File\tDate_stamp\tsize(Gb)\tOperation\tTransfer_time\tTransfer_rate(Gb/s)\tRepeat" >> $MYLOG 
+echo -e "# File\tDate_stamp\tsize(Gb)\tOperation\tTransfer_time\tTransfer_rate(Gb/s)\tTransfer_rate(Mb/s)\tRepeat" >> $MYLOG 
 
 # upload file 1 (no parcel)
 ########################################################################################################
@@ -59,7 +60,8 @@ download_file_s3cmd(){
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
-    DENOM=$5
+    DENOMGB=$5
+    DENOMMB=$6
     OPERATION="s3cmd_get.download_without_parcel"
 
     # check to make sure the file does not exist locally, delete it if it does
@@ -82,10 +84,12 @@ download_file_s3cmd(){
 	    echo -e "\nRunning \"s3cmd get s3://$BUCKET/$FILE\"\n"
 	    s3cmd get s3://$BUCKET/$FILE
 	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
-	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
+	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
+	    my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	    my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"|bc -l`
+	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 	else
 	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
 	fi
@@ -106,7 +110,8 @@ upload_file_s3cmd(){
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
-    DENOM=$5
+    DENOMGB=$5
+    DENOMMB=$6
     OPERATION="s3cmd_sync.download_without_parcel"
 
     # check to make sure the file exists locally, if not, exit
@@ -129,13 +134,15 @@ upload_file_s3cmd(){
 	    echo -e "\n$FILE exists in bucket, delete before proceeding with upload\n"
 	fi
 	my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	my_size_gb=`echo "$my_size/$DENOM"|bc -l`
+	my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
+	my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
 	START_TIME=$SECONDS
 	#s3cmd sync -P ./$FILE s3://$BUCKET/
 	s3cmd put -P ./$FILE s3://$BUCKET/ # note - upload is -P -- public access
 	ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"|bc -l`
+	echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 
 	# delete the uploaded file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
@@ -231,9 +238,10 @@ download_file_wget_wp(){
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
-    DENOM=$5
-    PARCELSERVERIPPORT=$6
-    PARCELLOCALHOSTPORT=$7
+    DENOMGB=$5
+    DENOMMB=$6
+    PARCELSERVERIPPORT=$7
+    PARCELLOCALHOSTPORT=$8
     OPERATION="wget.download_with_parcel"
 
     # kill parcel if it is already running
@@ -269,10 +277,12 @@ download_file_wget_wp(){
 	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
 	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
 	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
-	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
+	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
+	    my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	    my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"|bc -l`
+	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
+
 	else
 	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
 	fi
@@ -301,7 +311,8 @@ download_file_boto(){
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
-    DENOM=$5
+    DENOMGB=$5
+    DENOMMB=$6
     source ~/.profile
     ACCESSKEY="$ACCESSKEY"
     SECRETKEY="$SECRETKEY"
@@ -329,9 +340,13 @@ download_file_boto(){
 	    boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
 	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
-	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
+	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
+	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
+	    my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	    my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"|bc -l`
+	    #echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
+
+	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 	else
 	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
 	fi
@@ -374,9 +389,9 @@ download_file_boto(){
 for FILE in $FILE0 $FILE1
 do
     # (1) Add s3cmd dl               # DONE
-    download_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM
+    download_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
     # (2) Add s3cmd ul               # DONE
-    upload_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM
+    upload_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
     # (3) Add s3cmd dl with parcel   # possible?
     
     # (4) Add s3cmd ul with parcel   # possible?
@@ -386,11 +401,11 @@ do
     # (6) Add wput ul                # possible?
     
     # (7) Add wget dl with parcel    # DONE
-    download_file_wget_wp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT    
+    download_file_wget_wp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT    
     # (8) Add wput ul with parcel    # possible?
     
     # (9) Add boto dl                #
-    download_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM
+    download_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
     # (10) Add boto ul               #
     
     # (11) Add boto dl with parcel   #
