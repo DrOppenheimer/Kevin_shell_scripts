@@ -14,8 +14,8 @@ FILE3="ERR_tar.59Gb.gz"
 
 DENOM=`echo 2^30 | bc` # i.e. bytes in GB
 
-echo "# test_rw.sh log\t"`date` > $MYLOG
-echo "# File\tsize(Gb)\tTransfer_time\tTransfer_rate(Gb/s)\tRepeat\tParcel(?)" >> $MYLOG 
+echo -e "# test_rw.sh log\t"`date` > $MYLOG
+echo -e "# File\tsize(Gb)\tTransfer_time\tTransfer_rate(Gb/s)\tRepeat\tParcel(?)" >> $MYLOG 
 
 # upload file 1 (no parcel)
 for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
@@ -30,7 +30,7 @@ do
     s3cmd sync ./$FILE1 s3://$MYBUCKET/
     ELAPSED_TIME=$(($SECONDS - $START_TIME))
     my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-    echo $FILE1"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $MYLOG
+    echo -e $FILE1"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $MYLOG
     s3cmd del s3://$MYBUCKET/$FILE1
 done
 
@@ -47,7 +47,7 @@ do
     s3cmd sync ./$FILE2 s3://$MYBUCKET/
     ELAPSED_TIME=$(($SECONDS - $START_TIME))
     my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-    echo $FILE2"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $MYLOG
+    echo -e $FILE2"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $MYLOG
     s3cmd del s3://$MYBUCKET/$FILE2
 done
 
@@ -64,7 +64,7 @@ do
     s3cmd sync ./$FILE3 s3://$MYBUCKET/
     ELAPSED_TIME=$(($SECONDS - $START_TIME))
     my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-    echo $FILE3"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $MYLOG
+    echo -e $FILE3"\t"$my_size_gb"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i"\tN" >> $MYLOG
     s3cmd del s3://$MYBUCKET/$FILE3
 done
 
@@ -73,6 +73,24 @@ done
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+# make log name optional
+# make wrapper script that supplies stream iterated log names
+
+
+
+# for((i=1;i<100;i++)); do nohup bash script${i}.sh & done
 
 # delete a non-empty bucket
 # s3cmd del --recursive s3://bucket-to-delete

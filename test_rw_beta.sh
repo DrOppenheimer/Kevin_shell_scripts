@@ -302,7 +302,10 @@ download_file_boto(){
     NUMREPEATS=$3
     LOG=$4
     DENOM=$5
-    OPERATION="Boto.download_without"
+    ACCESSKEY=$6
+    SECRETKEY=$7
+    GATEWAY=$8
+    OPERATION="Boto.download_without_parcel"
     
     # check to make sure the file does not exist locally, delete it if it does
     if [[ -e $FILE ]]; then
@@ -318,71 +321,11 @@ download_file_boto(){
 	
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
-	    #s3cmd get s3://Onel_lab/test
-	    START_TIME=$SECONDS
-	    #s3cmd get s3://$BUCKET/$FILE
-	    echo -e "\nRunning: \"wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE\" \n"
-	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
-	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
-	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	    my_size_gb=`echo "$my_size/$DENOM"|bc -l`
-	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate"\t"$i >> $LOG
-	else
-	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
-	fi
-
-	# delete the local file every iteration except the last
-	if [[ $i -lt $NUMREPEATS ]]; then
-	    rm $FILE
-	fi
-	
-    done
-
-
-    
-
-    }
-
-
-
-
-
-
-
-
-    # kill parcel if it is already running
-    #pkill parcel-tcp2udt
-    #pkill parcel-udt2tcp
-    pkill parcel-*
-    sleep 5s
-    # start the parcel service
-    echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
-    parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
-    sleep 5s
-    parcel-udt2tcp $PARCELLOCALHOSTPORT &
-    sleep 5s
-    
-     # check to make sure the file does not exist locally, delete it if it does
-    if [[ -e $FILE ]]; then
-	rm $FILE
-	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
-    else
-	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
-    fi
-
-    # Perform test NUMREPEAT times
-    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
-    do
-	
-	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
-	if [[ $file_check -gt 0 ]]; then
 	    # boto_dl.py -f ERR_tar.12Mb.gz -a RNC0Y3H3W9M9P4I4VAFM -s bRb8osnG7rpvyof05HGKZKwHtFSybmfVizVp0QDp -b test_bucket -g griffin-objstore.opensciencedatacloud.org
 	    START_TIME=$SECONDS
-	    echo -e "\nRunning: \"  boto_dl.py -F $FILE -a   \" \n"
-	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
-	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
+	    #s3cmd get s3://$BUCKET/$FILE
+	    echo -e "\nRunning: \"boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
+	    boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
 	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
@@ -391,42 +334,15 @@ download_file_boto(){
 	else
 	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
 	fi
-
+	
 	# delete the local file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
 	    rm $FILE
 	fi
 	
     done
-
-    # Kill parcel processes
-    pkill parcel*
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-NUMREPEATS=2;
-MYLOG="rw_log.txt";
-MYBUCKET="test_bucket"
-PARCELSERVERIPPORT="192.170.232.76:9000";
-PARCELLOCALHOSTPORT="parcel.opensciencedatacloud.org:9000"
-
-
-
-
+        
+}
 ########################################################################################################
 
 ########################################################################################################
@@ -469,18 +385,17 @@ do
     # (6) Add wput ul                # possible?
     
     # (7) Add wget dl with parcel    # DONE
-    # -> #download_file_wget_wp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+    download_file_wget_wp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT    
     # (8) Add wput ul with parcel    # possible?
     
     # (9) Add boto dl                #
-    
+    download_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM $ACCESSKEY $SECRETKEY $GATEWAY    
     # (10) Add boto ul               #
     
     # (11) Add boto dl with parcel   #
     
     # (12) Add boto ul with parcel   #
     
-    download_file_wget_wp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM   
 done
 
 
