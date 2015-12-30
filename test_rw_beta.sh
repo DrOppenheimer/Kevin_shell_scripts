@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # number of times to perform the operation
-NUMREPEATS=2;
+NUMREPEATS=3;
 MYLOG="rw_log.txt";
 MYBUCKET="test_bucket"
 PARCELSERVERIPPORT="192.170.232.76:9000";
@@ -386,6 +386,7 @@ download_file_boto(){
 ### Need to characterize this error in the future.
 
 #for FILE in $FILE0 $FILE1 $FILE2;
+#for FILE in $FILE0 $FILE1
 for FILE in $FILE0 $FILE1
 do
     # (1) Add s3cmd dl               # DONE
