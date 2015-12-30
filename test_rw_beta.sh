@@ -395,7 +395,7 @@ download_file_boto(){
 
 #for FILE in $FILE0 $FILE1 $FILE2;
 #for FILE in $FILE0 $FILE1
-for FILE in $FILE0 $FILE1
+for FILE in $FILE0
 do
     # (1) Add s3cmd dl               # DONE
     download_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
