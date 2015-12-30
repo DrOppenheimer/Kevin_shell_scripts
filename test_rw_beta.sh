@@ -80,10 +80,12 @@ download_file_s3cmd(){
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
 	    #s3cmd get s3://Onel_lab/test
-	    START_TIME=$SECONDS
+	    #START_TIME=$SECONDS
+	    START_TIME=`date +%s.%N`
 	    echo -e "\nRunning \"s3cmd get s3://$BUCKET/$FILE\"\n"
 	    s3cmd get s3://$BUCKET/$FILE
-	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
 	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
@@ -136,10 +138,12 @@ upload_file_s3cmd(){
 	my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
 	my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
-	START_TIME=$SECONDS
+	#START_TIME=$SECONDS
+	START_TIME=`date +%s.%N`
 	#s3cmd sync -P ./$FILE s3://$BUCKET/
 	s3cmd put -P ./$FILE s3://$BUCKET/ # note - upload is -P -- public access
-	ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	#ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
 	my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"|bc -l`
 	echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
@@ -271,12 +275,14 @@ download_file_wget_wp(){
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
 	    #s3cmd get s3://Onel_lab/test
-	    START_TIME=$SECONDS
+	    #START_TIME=$SECONDS
+	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
 	    echo -e "\nRunning: \"wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE\" \n"
 	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
 	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
-	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
 	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
 	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
 	    my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
@@ -334,11 +340,13 @@ download_file_boto(){
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
 	    # boto_dl.py -f ERR_tar.12Mb.gz -a RNC0Y3H3W9M9P4I4VAFM -s bRb8osnG7rpvyof05HGKZKwHtFSybmfVizVp0QDp -b test_bucket -g griffin-objstore.opensciencedatacloud.org
-	    START_TIME=$SECONDS
+	    # START_TIME=$SECONDS
+	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
 	    echo -e "\nRunning: \"boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
 	    boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
-	    ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
 	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
