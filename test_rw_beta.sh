@@ -302,9 +302,10 @@ download_file_boto(){
     NUMREPEATS=$3
     LOG=$4
     DENOM=$5
-    ACCESSKEY=$6
-    SECRETKEY=$7
-    GATEWAY=$8
+    source ~/.profile
+    ACCESSKEY="$ACCESSKEY"
+    SECRETKEY="$SECRETKEY"
+    GATEWAY="$GATEWAY"
     OPERATION="Boto.download_without_parcel"
     
     # check to make sure the file does not exist locally, delete it if it does
@@ -389,7 +390,7 @@ do
     # (8) Add wput ul with parcel    # possible?
     
     # (9) Add boto dl                #
-    download_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM $ACCESSKEY $SECRETKEY $GATEWAY    
+    download_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM
     # (10) Add boto ul               #
     
     # (11) Add boto dl with parcel   #
