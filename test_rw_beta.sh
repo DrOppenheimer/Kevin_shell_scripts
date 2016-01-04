@@ -347,7 +347,7 @@ download_file_boto(){
 	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
 	    #FINISH_TIME=`date +%s.%N`
 	    echo "DONE 0"
-	    ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME | bc -l`
+	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
 	    echo "DONE 1"
 	    echo $my_size_gb
 	    echo $$ELAPSED_TIME
