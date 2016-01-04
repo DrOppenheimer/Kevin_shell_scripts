@@ -347,11 +347,11 @@ download_file_boto(){
 	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
 	    FINISH_TIME=`date +%s.%N`
 	    ELAPSED_TIME=$(echo "$FINISH_TIME - $START_TIME" |bc -l)
-	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
-	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
-	    my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	    my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"|bc -l`
+	    my_transfer_rate=$(echo "$my_size_gb/$ELAPSED_TIME"|bc -l)
+	    my_size_gb=$(echo "$my_size/$DENOMGB"|bc -l)
+	    my_size_mb=$(echo "$my_size/$DENOMMB"|bc -l)
+	    my_transfer_rate_gps=$(echo "$my_size_gb/$ELAPSED_TIME"|bc -l)
+	    my_transfer_rate_mps=$(echo "$my_size_mb/$ELAPSED_TIME"|bc -l)
 	    #echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 
 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
