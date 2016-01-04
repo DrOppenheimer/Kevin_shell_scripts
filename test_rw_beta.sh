@@ -239,7 +239,7 @@ upload_file_s3cmd(){
 
 ########################################################################################################
 # (7) Download with wget using parcel # THIS WORKS
-download_file_wget_wp(){
+download_file_wget_withp(){
     BUCKET=$1
     FILE=$2
     NUMREPEATS=$3
@@ -380,11 +380,92 @@ download_file_boto(){
 
 ########################################################################################################
 # (11) Boto download with parcel
+download_file_boto_withp(){
+    BUCKET=$1
+    FILE=$2
+    NUMREPEATS=$3
+    LOG=$4
+    DENOMGB=$5
+    DENOMMB=$6
+    PARCELSERVERIPPORT=$7
+    #PARCELLOCALHOSTPORT=$8
+    source ~/.profile
+    ACCESSKEY="$ACCESSKEY"
+    SECRETKEY="$SECRETKEY"
+    GATEWAY="$GATEWAY"
+    OPERATION="Boto.download_with_parcel"
+
+    PARCELSERVERIP=`echo PARCELSERVERIPPORT | cut -f 1 -d ":"`
+    
+    # check to make sure the file does not exist locally, delete it if it does
+    if [[ -e $FILE ]]; then
+	rm $FILE
+	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
+    else
+	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
+    fi
+    
+    # Perform test NUMREPEAT times
+    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+    do
+	
+	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+	if [[ $file_check -gt 0 ]]; then
+	    # boto_dl.py -f ERR_tar.12Mb.gz -a RNC0Y3H3W9M9P4I4VAFM -s bRb8osnG7rpvyof05HGKZKwHtFSybmfVizVp0QDp -b test_bucket -g griffin-objstore.opensciencedatacloud.org
+	    # START_TIME=$SECONDS
+	    START_TIME=`date +%s.%N`
+	    #s3cmd get s3://$BUCKET/$FILE
+
+	    echo -e "\nRunning: \"boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $PARCELSERVERIP -u\"\n"
+	    boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $PARCELSERVERIP -u
+	    
+	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
+	    #ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
+	    ELAPSED_TIME=$(echo "`date +%s.%N` - $START_TIME" |bc)
+	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
+	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
+	    my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	    my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"|bc -l`
+	    #echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
+
+	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
+	else
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	fi
+	
+	# delete the local file every iteration except the last
+	if [[ $i -lt $NUMREPEATS ]]; then
+	    rm $FILE
+	fi
+	
+    done
+        
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ########################################################################################################
 
 ########################################################################################################
 # (12) Boto upload with parcel
+
+
+
+
 
 ########################################################################################################
 
@@ -414,7 +495,7 @@ do
     # (6) Add wput ul                # possible?
     
     # (7) Add wget dl with parcel    # DONE
-    download_file_wget_wp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT    
+    download_file_wget_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT    
     # (8) Add wput ul with parcel    # possible?
     
     # (9) Add boto dl                #
@@ -422,6 +503,7 @@ do
     # (10) Add boto ul               #
     
     # (11) Add boto dl with parcel   #
+    download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT
     
     # (12) Add boto ul with parcel   #
     
@@ -435,6 +517,75 @@ done
 ########################################################################################################
 ########################################################################################################
 ### NOTES AND ADDITIONAL COMMENTS
+
+
+
+
+#####
+
+########################################################################################################
+### From Mark 1-4-15
+
+# #upload.py
+
+# Host and port is just the host and port of the proxy. (For Parcel)
+# Credentials file is a JSON object.
+
+# https://gist.github.com/MurphyMarkW/14b42ce6c4abc63f8803
+
+# #!/usr/bin/env python
+
+# import os
+# import sys
+# import json
+# import logging
+# import argparse
+
+# import boto
+# import boto.s3.connection
+
+# if __name__ == '__main__':
+
+#     parser = argparse.ArgumentParser(description='Upload an object from stdin.')
+
+#     parser.add_argument('-d', '--debug',
+#         action='store_true',
+#         help='Enabled debug-level logging.',
+#     )
+
+#     parser.add_argument('credentials',
+#         type=argparse.FileType('r'),
+#         help='Credentials file.',
+#     )
+
+#     parser.add_argument('bucket',help='Bucket to use.')
+#     parser.add_argument('key',help='Object name.')
+
+#     args = parser.parse_args()
+
+#     logging.basicConfig(
+#         level=logging.DEBUG if args.debug else logging.INFO,
+#         format='%(asctime)s %(name)-6s %(levelname)-4s %(message)s',
+#     )
+
+#     credentials= json.load(args.credentials)
+
+#     conn = boto.connect_s3(
+#         aws_access_key_id     = credentials.get('access_key'),
+#         aws_secret_access_key = credentials.get('secret_key'),
+#         host                  = credentials.get('host'),
+#         port                  = credentials.get('port'),
+#         is_secure             = credentials.get('is_secure', False),
+#         calling_format        = boto.s3.connection.OrdinaryCallingFormat(),
+#     )
+
+#     key = conn.get_bucket(args.bucket).get_key(args.key)
+#     if key is None:
+#         key = conn.get_bucket(args.bucket).new_key(args.key)
+
+#     key.set_contents_from_file(sys.stdin)
+########################################################################################################
+
 
 
 # # function to upload data (using wput with parcel)
