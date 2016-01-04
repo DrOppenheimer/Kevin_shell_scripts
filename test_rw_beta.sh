@@ -350,7 +350,7 @@ download_file_boto(){
 	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
 	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	    #ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
-	    ELAPSED_TIME=$((echo "`date +%s.%N` - $START_TIME" |bc))
+	    ELAPSED_TIME=`echo "`date +%s.%N` - $START_TIME" |bc -l`
 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
 	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
