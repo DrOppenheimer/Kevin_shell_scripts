@@ -86,7 +86,7 @@ download_file_s3cmd(){
 	    s3cmd get s3://$BUCKET/$FILE
 	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	    #calc=$(echo "$String2 + $String8"|bc)
-	    ELAPSED_TIME=$(echo "`date +%s.%N` - $START_TIME" |bc))
+	    ELAPSED_TIME=$(echo "`date +%s.%N` - $START_TIME" |bc)
 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
 	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
