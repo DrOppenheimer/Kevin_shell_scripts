@@ -351,6 +351,7 @@ download_file_boto(){
 	    echo "DONE 1"
 	    
 	    echo "DONE 2"
+	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	    my_size_gb=`echo  "$my_size / $DENOMGB" | bc -l`
 	    my_size_mb=`echo  "$my_size / $DENOMMB" | bc -l`
 
