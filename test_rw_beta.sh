@@ -84,9 +84,8 @@ download_file_s3cmd(){
 	    START_TIME=`date +%s.%N`
 	    echo -e "\nRunning \"s3cmd get s3://$BUCKET/$FILE\"\n"
 	    s3cmd get s3://$BUCKET/$FILE
-	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	    #calc=$(echo "$String2 + $String8"|bc)
-	    ELAPSED_TIME=$((echo "`date +%s.%N` - $START_TIME" |bc))
+	    FINISH_TIME=`date +%s.%N`
+	    ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME |bc -l`
 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
 	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
@@ -143,9 +142,8 @@ upload_file_s3cmd(){
 	START_TIME=`date +%s.%N`
 	#s3cmd sync -P ./$FILE s3://$BUCKET/
 	s3cmd put -P ./$FILE s3://$BUCKET/ # note - upload is -P -- public access
-	#ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	#ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
-	ELAPSED_TIME=$((echo "`date +%s.%N` - $START_TIME" |bc))
+	FINISH_TIME=`date +%s.%N`
+	ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME |bc -l`
 	my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"|bc -l`
 	echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
@@ -283,9 +281,8 @@ download_file_wget_withp(){
 	    echo -e "\nRunning: \"wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE\" \n"
 	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
 	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
-	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	    #ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
-	    ELAPSED_TIME=$((echo "`date +%s.%N` - $START_TIME" |bc))
+	    FINISH_TIME=`date +%s.%N`
+	    ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME |bc -l`
 	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
 	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
 	    my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
@@ -349,9 +346,7 @@ download_file_boto(){
 	    echo -e "\nRunning: \"boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
 	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
 	    FINISH_TIME=`date +%s.%N`
-	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	    #ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
-	    ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME |bc -l`  # `echo '1.1 + 2.2' | bc -l`
+	    ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME |bc -l`
 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
 	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
@@ -431,10 +426,8 @@ download_file_boto_withp(){
 
 	    echo -e "\nRunning: \"boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p 9000\"\n"
 	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p 9000
-	    
-	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
-	    #ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
-	    ELAPSED_TIME=`echo "`date +%s.%N` - $START_TIME" |bc -l`
+	    FINISH_TIME=`date +%s.%N`
+	    ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME |bc -l`
 	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
 	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
