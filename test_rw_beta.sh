@@ -502,9 +502,9 @@ download_file_boto_withp(){
 for FILE in $FILE0
 do
     # (1) Add s3cmd dl               # DONE
-   #download_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
+   download_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
     # (2) Add s3cmd ul               # DONE
-   #upload_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
+   upload_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
     # (3) Add s3cmd dl with parcel   # possible?
     
     # (4) Add s3cmd ul with parcel   # possible?
@@ -514,7 +514,7 @@ do
     # (6) Add wput ul                # possible?
     
     # (7) Add wget dl with parcel    # DONE
-   #download_file_wget_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT    
+   download_file_wget_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT    
     # (8) Add wput ul with parcel    # possible?
     
     # (9) Add boto dl                #
@@ -522,7 +522,7 @@ do
     # (10) Add boto ul               #
     
     # (11) Add boto dl with parcel   #
-   #download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+   download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
     
     # (12) Add boto ul with parcel   #
     
