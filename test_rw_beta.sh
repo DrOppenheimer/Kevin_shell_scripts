@@ -314,7 +314,7 @@ download_file_wget_withp(){
 ########################################################################################################
 
 ########################################################################################################
-# (9) Boto download (without parcel)
+# (9) Boto download (without parcel)    ##### AS WRITTEN THIS WILL USE PARCEL
 download_file_boto(){
     BUCKET=$1
     FILE=$2
