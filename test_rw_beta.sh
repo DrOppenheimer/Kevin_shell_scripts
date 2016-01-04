@@ -85,12 +85,14 @@ download_file_s3cmd(){
 	    echo -e "\nRunning \"s3cmd get s3://$BUCKET/$FILE\"\n"
 	    s3cmd get s3://$BUCKET/$FILE
 	    FINISH_TIME=`date +%s.%N`
-	    ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME |bc -l`
+	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
+
 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
-	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
-	    my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	    my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"|bc -l`
+	    my_size_gb=`echo "$my_size/$DENOMGB"| bc -l`
+	    my_size_mb=`echo "$my_size/$DENOMMB"| bc -l`
+
+	    my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"| bc -l`
+	    my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"| bc -l`
 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 	else
 	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
@@ -135,17 +137,19 @@ upload_file_s3cmd(){
 	    s3cmd del s3://$BUCKET/$FILE
 	    echo -e "\n$FILE exists in bucket, delete before proceeding with upload\n"
 	fi
+
 	my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
-	my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
-	#START_TIME=$SECONDS
+	my_size_gb=`echo "$my_size/$DENOMGB"| bc -l`
+	my_size_mb=`echo "$my_size/$DENOMMB"| bc -l`
+
 	START_TIME=`date +%s.%N`
 	#s3cmd sync -P ./$FILE s3://$BUCKET/
 	s3cmd put -P ./$FILE s3://$BUCKET/ # note - upload is -P -- public access
 	FINISH_TIME=`date +%s.%N`
-	ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME |bc -l`
-	my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
-	my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"|bc -l`
+	ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
+
+	my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"| bc -l`
+	my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"| bc -l`
 	echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 
 	# delete the uploaded file every iteration except the last
@@ -276,15 +280,19 @@ download_file_wget_withp(){
 	if [[ $file_check -gt 0 ]]; then
 	    #s3cmd get s3://Onel_lab/test
 	    #START_TIME=$SECONDS
+
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
 	    echo -e "\nRunning: \"wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE\" \n"
 	    wget https://$PARCELLOCALHOSTPORT/$MYBUCKET/$FILE
 	    # eg # wget https://parcel.opensciencedatacloud.org:9000/test_bucket/ERR_tar.12Mb.gz
 	    FINISH_TIME=`date +%s.%N`
-	    ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME |bc -l`
+	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" |bc -l`
+
+	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
 	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
+	    
 	    my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"|bc -l`
 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
@@ -339,29 +347,21 @@ download_file_boto(){
 	
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
-	    # boto_dl.py -f ERR_tar.12Mb.gz -a RNC0Y3H3W9M9P4I4VAFM -s bRb8osnG7rpvyof05HGKZKwHtFSybmfVizVp0QDp -b test_bucket -g griffin-objstore.opensciencedatacloud.org
-	    # START_TIME=$SECONDS
+	    
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
 	    echo -e "\nRunning: \"boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
 	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
 	    FINISH_TIME=`date +%s.%N`
-	    echo "DONE 0"
 	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
-	    echo "DONE 1"
 	    
-	    echo "DONE 2"
 	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	    my_size_gb=`echo  "$my_size / $DENOMGB" | bc -l`
 	    my_size_mb=`echo  "$my_size / $DENOMMB" | bc -l`
 
-	    echo "SIZE: "$my_size_gb
-	    echo "ELAPSED TIME"$ELAPSED_TIME
-
 	    my_transfer_rate_gps=`echo  "$my_size_gb / $ELAPSED_TIME" | bc -l`
 	    my_transfer_rate_mps=`echo  "$my_size_mb / $ELAPSED_TIME" | bc -l`
-	    #echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
-
+	    
 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 	else
 	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
@@ -428,17 +428,19 @@ download_file_boto_withp(){
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
 	    # boto_dl.py -f ERR_tar.12Mb.gz -a RNC0Y3H3W9M9P4I4VAFM -s bRb8osnG7rpvyof05HGKZKwHtFSybmfVizVp0QDp -b test_bucket -g griffin-objstore.opensciencedatacloud.org
-	    # START_TIME=$SECONDS
+	    
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
-
 	    echo -e "\nRunning: \"boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p 9000\"\n"
 	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p 9000
 	    FINISH_TIME=`date +%s.%N`
-	    ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME |bc -l`
-	    my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
+	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" |bc -l`
+
+	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
 	    my_size_gb=`echo "$my_size/$DENOMGB"|bc -l`
 	    my_size_mb=`echo "$my_size/$DENOMMB"|bc -l`
+
+	    #my_transfer_rate=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_transfer_rate_gps=`echo "$my_size_gb/$ELAPSED_TIME"|bc -l`
 	    my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"|bc -l`
 	    #echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
