@@ -346,8 +346,8 @@ download_file_boto(){
 	    # START_TIME=$SECONDS
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
-	    echo -e "\nRunning: \"boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
-	    boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
+	    echo -e "\nRunning: \"boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
+	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
 	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	    #ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
 	    ELAPSED_TIME=$(echo "`date +%s.%N` - $START_TIME" |bc)
@@ -428,8 +428,8 @@ download_file_boto_withp(){
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
 
-	    echo -e "\nRunning: \"boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $PARCELLOCALHOST -u\"\n"
-	    boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $PARCELLOCALHOST -u
+	    echo -e "\nRunning: \"boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p 9000\"\n"
+	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p 9000
 	    
 	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	    #ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
@@ -518,7 +518,7 @@ do
     # (10) Add boto ul               #
     
     # (11) Add boto dl with parcel   #
-    download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+   #download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
     
     # (12) Add boto ul with parcel   #
     
