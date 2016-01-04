@@ -349,6 +349,8 @@ download_file_boto(){
 	    echo "DONE 0"
 	    ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME | bc -l`
 	    echo "DONE 1"
+	    echo $my_size_gb
+	    echo $$ELAPSED_TIME
 	    my_transfer_rate=`echo $my_size_gb/$ELAPSED_TIME|bc -l`  # z=`echo $y/$x|bc`
 	    echo "DONE 2"
 	    my_size_gb=`echo  $my_size / $DENOMGB | bc -l`
