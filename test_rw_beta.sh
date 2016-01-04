@@ -347,9 +347,10 @@ download_file_boto(){
 	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
 	    FINISH_TIME=`date +%s.%N`
 	    echo "DONE 0"
-	    ELAPSED_TIME=`echo $FINISH_TIME - $START_TIME | bc -l`
-	    my_transfer_rate=`echo $my_size_gb / $ELAPSED_TIME | bc -l`
+	    ELAPSED_TIME=`$FINISH_TIME - $START_TIME | bc -l`
 	    echo "DONE 1"
+	    my_transfer_rate=`echo $my_size_gb / $ELAPSED_TIME | bc -l`
+	    
 	    my_size_gb=`echo '$my_size / $DENOMGB' | bc -l`
 	    my_size_mb=`echo $my_size / $DENOMMB |bc -l`
 	    my_transfer_rate_gps=`echo $my_size_gb / $ELAPSED_TIME | bc -l`
