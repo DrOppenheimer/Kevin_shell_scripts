@@ -396,6 +396,18 @@ download_file_boto_withp(){
     OPERATION="Boto.download_with_parcel"
 
     PARCELSERVERIP=`echo PARCELSERVERIPPORT | cut -f 1 -d ":"`
+
+    # kill parcel if it is already running
+    #pkill parcel-tcp2udt
+    #pkill parcel-udt2tcp
+    pkill parcel-*
+    sleep 5s
+    # start the parcel service
+    echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
+    parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
+    sleep 5s
+    parcel-udt2tcp $PARCELLOCALHOSTPORT &
+    sleep 5s
     
     # check to make sure the file does not exist locally, delete it if it does
     if [[ -e $FILE ]]; then
@@ -440,6 +452,9 @@ download_file_boto_withp(){
 	fi
 	
     done
+
+    # Kill parcel processes
+    pkill parcel*
         
 }
 
