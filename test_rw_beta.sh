@@ -395,7 +395,7 @@ download_file_boto_withp(){
     GATEWAY="$GATEWAY"
     OPERATION="Boto.download_with_parcel"
 
-    PARCELSERVERIP=`echo PARCELSERVERIPPORT | cut -f 1 -d ":"`
+    PARCELLOCALHOST=`echo $PARCELLOCALHOSTPORT | cut -f 1 -d ":"`
 
     # kill parcel if it is already running
     #pkill parcel-tcp2udt
@@ -428,8 +428,8 @@ download_file_boto_withp(){
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
 
-	    echo -e "\nRunning: \"boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $PARCELSERVERIP -u\"\n"
-	    boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $PARCELSERVERIP -u
+	    echo -e "\nRunning: \"boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $PARCELLOCALHOST -u\"\n"
+	    boto_dl.py -f ERR_tar.12Mb.gz -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $PARCELLOCALHOST -u
 	    
 	    #ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	    #ELAPSED_TIME=$((`date +%s.%N` - $START_TIME))
