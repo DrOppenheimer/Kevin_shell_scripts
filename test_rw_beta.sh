@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # number of times to perform the operation
-NUMREPEATS=3;
+NUMREPEATS=1;
 MYLOG="rw_log.txt";
 MYBUCKET="test_bucket"
 PARCELSERVERIPPORT="192.170.232.76:9000";
@@ -26,9 +26,9 @@ echo "GATEWAY   = $GATEWAY"
 # (7) Add wget dl with parcel    # DONE
 # (8) Add wput ul with parcel    # possible?
 # (9) Add boto dl                # DONE
-# (10) Add boto ul               # will use simple boto script boto_ul.py
+# (10) Add boto ul               # DONE
 # (11) Add boto dl with parcel   # DONE
-# (12) Add boto ul with parcel   # will use simple boto script boto_ul.py
+# (12) Add boto ul with parcel   # DONE
 
 # ...
 # with udr?
@@ -116,7 +116,7 @@ upload_file_s3cmd(){
     LOG=$4
     DENOMGB=$5
     DENOMMB=$6
-    OPERATION="s3cmd_sync.download_without_parcel"
+    OPERATION="s3cmd_sync.upload_without_parcel"
 
     # check to make sure the file exists locally, if not, exit
     if [[ -e $FILE ]]; then
@@ -486,8 +486,8 @@ download_file_boto_withp(){
 	    
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
-	    echo -e "\nRunning: \"boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p 9000\"\n"
-	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p 9000
+	    echo -e "\nRunning: \"boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
+	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p
 	    FINISH_TIME=`date +%s.%N`
 	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" |bc -l`
 
@@ -565,8 +565,8 @@ upload_file_boto_withp(){
 	    
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
-	    echo -e "\nRunning: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
-	    boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p 9000
+	    echo -e "\nRunning: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p\"\n"
+	    boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p
 	    FINISH_TIME=`date +%s.%N`
 	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
 	    
@@ -630,7 +630,8 @@ do
     # (9) Add boto dl                #
     download_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
     # (10) Add boto ul               #
-    
+    upload_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
+
     # (11) Add boto dl with parcel   #
     download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
     
