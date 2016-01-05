@@ -613,14 +613,17 @@ for FILE in $FILE0
 do
     # (1) Add s3cmd dl               # DONE
     download_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
+
     # (2) Add s3cmd ul               # DONE
     upload_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
+
     # (3) Add s3cmd dl with parcel   # possible?
     
     # (4) Add s3cmd ul with parcel   # possible?
     
     # (5) Add wget dl                # possible? # under development 
     # download_file_wget $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+    
     # (6) Add wput ul                # possible?
     
     # (7) Add wget dl with parcel    # DONE
@@ -629,13 +632,15 @@ do
     
     # (9) Add boto dl                #
     download_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
+    
     # (10) Add boto ul               #
     upload_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
 
     # (11) Add boto dl with parcel   #
-    download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
+    download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT # some sort of problem with this function
     
     # (12) Add boto ul with parcel   #
+    upload_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
     
 done
 
