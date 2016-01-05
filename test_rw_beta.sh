@@ -25,10 +25,10 @@ echo "GATEWAY   = $GATEWAY"
 # (6) Add wput ul                # possible?
 # (7) Add wget dl with parcel    # DONE
 # (8) Add wput ul with parcel    # possible?
-# (9) Add boto dl                # Uses simple boto script boto_dl.py
-# (10) Add boto ul               # Uses simple boto script boto_ul.py
-# (11) Add boto dl with parcel   # Uses simple boto script boto_dl.py
-# (12) Add boto ul with parcel   # Uses simple boto script boto_ul.py
+# (9) Add boto dl                # DONE
+# (10) Add boto ul               # will use simple boto script boto_ul.py
+# (11) Add boto dl with parcel   # DONE
+# (12) Add boto ul with parcel   # will use simple boto script boto_ul.py
 
 # ...
 # with udr?
@@ -122,8 +122,8 @@ upload_file_s3cmd(){
     if [[ -e $FILE ]]; then
 	echo -e "$\n$FILE exists locally, proceeding to upload\n"
     else
-	echo -e "\n$FILE Does not exist locally\n" >> $LOG
-	echo -e "\n$FILE Does not exist locally\n"
+	echo -e "\n$FILE Does not exist locally: exiting\n" >> $LOG
+	echo -e "\n$FILE Does not exist locally: exiting\n"
 	exit 1 
     fi
 
@@ -379,7 +379,62 @@ download_file_boto(){
 
 ########################################################################################################
 # (10) Boto upload (without parcel)
+upload_file_boto(){
+    BUCKET=$1
+    FILE=$2
+    NUMREPEATS=$3
+    LOG=$4
+    DENOMGB=$5
+    DENOMMB=$6
+    source ~/.profile
+    ACCESSKEY="$ACCESSKEY"
+    SECRETKEY="$SECRETKEY"
+    GATEWAY="$GATEWAY"
+    OPERATION="Boto.upload_without_parcel"
+    
+     # check to make sure the file exists locally, if not, exit
+    if [[ -e $FILE ]]; then
+	echo -e "$\n$FILE exists locally, proceeding to upload\n"
+    else
+	echo -e "\n$FILE Does not exist locally: exiting\n" >> $LOG
+	echo -e "\n$FILE Does not exist locally: exiting\n"
+	exit 1 
+    fi
+    
+    # Perform test NUMREPEAT times
+    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+    do
+	
+	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+	if [[ $file_check -gt 0 ]]; then
+	    
+	    START_TIME=`date +%s.%N`
+	    #s3cmd get s3://$BUCKET/$FILE
+	    echo -e "\nRunning: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
+	    boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
+	    FINISH_TIME=`date +%s.%N`
+	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
+	    
+	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
+	    my_size_gb=`echo  "$my_size / $DENOMGB" | bc -l`
+	    my_size_mb=`echo  "$my_size / $DENOMMB" | bc -l`
 
+	    my_transfer_rate_gps=`echo  "$my_size_gb / $ELAPSED_TIME" | bc -l`
+	    my_transfer_rate_mps=`echo  "$my_size_mb / $ELAPSED_TIME" | bc -l`
+	    
+	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
+	else
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	fi
+	
+	# delete the uploaded file every iteration except the last
+	if [[ $i -lt $NUMREPEATS ]]; then
+	    s3cmd del s3://$BUCKET/$FILE    
+	fi
+	
+    done
+        
+}
 ########################################################################################################
 
 ########################################################################################################
@@ -461,27 +516,82 @@ download_file_boto_withp(){
     pkill parcel*
         
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ########################################################################################################
 
 ########################################################################################################
 # (12) Boto upload with parcel
+upload_file_boto_withp(){
+    BUCKET=$1
+    FILE=$2
+    NUMREPEATS=$3
+    LOG=$4
+    DENOMGB=$5
+    DENOMMB=$6
+    source ~/.profile
+    ACCESSKEY="$ACCESSKEY"
+    SECRETKEY="$SECRETKEY"
+    GATEWAY="$GATEWAY"
+    OPERATION="Boto.upload_with_parcel"
 
+    PARCELLOCALHOST=`echo $PARCELLOCALHOSTPORT | cut -f 1 -d ":"`
+
+    # kill parcel if it is already running
+    #pkill parcel-tcp2udt
+    #pkill parcel-udt2tcp
+    pkill parcel-*
+    sleep 5s
+    # start the parcel service
+    echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
+    parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
+    sleep 5s
+    parcel-udt2tcp $PARCELLOCALHOSTPORT &
+    sleep 5s
+    
+     # check to make sure the file exists locally, if not, exit
+    if [[ -e $FILE ]]; then
+	echo -e "$\n$FILE exists locally, proceeding to upload\n"
+    else
+	echo -e "\n$FILE Does not exist locally: exiting\n" >> $LOG
+	echo -e "\n$FILE Does not exist locally: exiting\n"
+	exit 1 
+    fi
+    
+    # Perform test NUMREPEAT times
+    for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
+    do
+	
+	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+	if [[ $file_check -gt 0 ]]; then
+	    
+	    START_TIME=`date +%s.%N`
+	    #s3cmd get s3://$BUCKET/$FILE
+	    echo -e "\nRunning: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
+	    boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p 9000
+	    FINISH_TIME=`date +%s.%N`
+	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
+	    
+	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
+	    my_size_gb=`echo  "$my_size / $DENOMGB" | bc -l`
+	    my_size_mb=`echo  "$my_size / $DENOMMB" | bc -l`
+
+	    my_transfer_rate_gps=`echo  "$my_size_gb / $ELAPSED_TIME" | bc -l`
+	    my_transfer_rate_mps=`echo  "$my_size_mb / $ELAPSED_TIME" | bc -l`
+	    
+	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
+	else
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	fi
+	
+	# delete the uploaded file every iteration except the last
+	if [[ $i -lt $NUMREPEATS ]]; then
+	    s3cmd del s3://$BUCKET/$FILE    
+	fi
+	
+    done
+
+    # Kill parcel processes
+    pkill parcel*
+}
 
 
 
