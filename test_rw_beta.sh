@@ -101,6 +101,7 @@ download_file_s3cmd(){
 
 	# delete the local file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
+	    echo "DELETING $FILE LOCALLY"
 	    rm $FILE
 	fi
 	
