@@ -572,7 +572,7 @@ upload_file_boto_withp(){
     pkill parcel-*
     sleep 5s
     # start the parcel service
-    echo -e "\nREP $i parcel sever_port: "$PARCELSERVERIPPORT"\n"
+    echo -e "parcel sever_port: $PARCELSERVERIPPORT" >> $ERRORLOG
     parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
     sleep 5s
     parcel-udt2tcp $PARCELLOCALHOSTPORT &
@@ -595,7 +595,7 @@ upload_file_boto_withp(){
 	    
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
-	    echo -e "\nREP $i Running: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p\"" >> $ERRORLOG
+	    echo -e "REP $i Running: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p\"" >> $ERRORLOG
 	    boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p
 	    FINISH_TIME=`date +%s.%N`
 	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
