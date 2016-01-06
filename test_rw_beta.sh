@@ -62,7 +62,7 @@ echo -e "# File\tDate_stamp\tsize(Gb)\tOperation\tTransfer_time\tTransfer_rate(G
 # (1) function to download data (using s3cmd get without parcel) # THIS WORKS
 download_file_s3cmd(){
 
-    echo "Performing download with s3cmd (no parcel)"
+    echo "Performing download with s3cmd (no parcel)" >> $ERRORLOG
     
     BUCKET=$1
     FILE=$2
@@ -76,9 +76,9 @@ download_file_s3cmd(){
     # check to make sure the file does not exist locally, delete it if it does
     if [[ -e $FILE ]]; then
 	rm $FILE
-	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
+	echo -e "Deleted $FILE (locally) before proceeding with download from the bucket" >> $ERRORLOG
     else
-	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
+	echo -e "$FILE is not present locally, proceeding with download from the bucket." >> $ERRORLOG
     fi
 
     # Perform download NUMREPEAT times
@@ -91,7 +91,7 @@ download_file_s3cmd(){
 	    #s3cmd get s3://Onel_lab/test
 	    #START_TIME=$SECONDS
 	    START_TIME=`date +%s.%N`
-	    echo -e "\nRunning \"s3cmd get s3://$BUCKET/$FILE\"\n"
+	    echo -e "Running \"s3cmd get s3://$BUCKET/$FILE" >> $ERRORLOG
 	    s3cmd get s3://$BUCKET/$FILE
 	    FINISH_TIME=`date +%s.%N`
 	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
@@ -109,7 +109,7 @@ download_file_s3cmd(){
 
 	# delete the local file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
-	    echo "DELETING $FILE LOCALLY"
+	    echo "REP $i DELETING $FILE LOCALLY" >> $ERRORLOG
 	    rm $FILE
 	fi
 	
@@ -129,14 +129,13 @@ upload_file_s3cmd(){
     DENOMMB=$7
     OPERATION="s3cmd_sync.upload_without_parcel"
 
-    echo "Performing upload with s3cmd (no parcel)"
+    echo "Performing upload with s3cmd (no parcel)" >> $ERRORLOG
 
     # check to make sure the file exists locally, if not, exit
     if [[ -e $FILE ]]; then
-	echo -e "$\n$FILE exists locally, proceeding to upload\n"
+	echo -e "$FILE exists locally, proceeding to upload" >> $ERRORLOG
     else
-	echo -e "\n$FILE Does not exist locally: exiting\n" >> $ERRORLOG
-	echo -e "\n$FILE Does not exist locally: exiting\n"
+	echo -e "$FILE Does not exist locally: exiting" >> $ERRORLOG
 	exit 1 
     fi
 
@@ -148,7 +147,7 @@ upload_file_s3cmd(){
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
 	    s3cmd del s3://$BUCKET/$FILE
-	    echo -e "\n$FILE exists in bucket, delete before proceeding with upload\n"
+	    echo -e "REP $i $FILE exists in bucket, delete before proceeding with upload"  >> $ERRORLOG
 	fi
 
 	my_size=`ls -ltr $FILE | cut -d " " -f 5`
@@ -167,7 +166,7 @@ upload_file_s3cmd(){
 
 	# delete the uploaded file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
-	    echo "DELETING $FILE ON THE OBJECT STORE"
+	    echo "REP $i DELETING $FILE ON THE OBJECT STORE" >> $ERRORLOG
 	    s3cmd del s3://$BUCKET/$FILE    
 	fi
 
@@ -267,7 +266,7 @@ download_file_wget_withp(){
     PARCELLOCALHOSTPORT=$9
     OPERATION="wget.download_with_parcel"
 
-    echo "Performing download with wget (with parcel)"
+    echo "Performing download with wget (with parcel)" >> $ERRORLOG
 
     # kill parcel if it is already running
     #pkill parcel-tcp2udt
@@ -275,7 +274,7 @@ download_file_wget_withp(){
     pkill parcel-*
     sleep 5s
     # start the parcel service
-    echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
+    echo -e "parcel sever_port: "$PARCELSERVERIPPORT >> $ERRORLOG
     parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
     sleep 5s
     parcel-udt2tcp $PARCELLOCALHOSTPORT &
@@ -284,9 +283,9 @@ download_file_wget_withp(){
      # check to make sure the file does not exist locally, delete it if it does
     if [[ -e $FILE ]]; then
 	rm $FILE
-	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
+	echo -e "Deleted $FILE (locally) before proceeding with download from the bucket" >> $ERRORLOG
     else
-	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
+	echo -e "$FILE is not present locally, proceeding with download from the bucket." >> $ERRORLOG
     fi
 
     # Perform test NUMREPEAT times
@@ -320,7 +319,7 @@ download_file_wget_withp(){
 
 	# delete the local file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
-	    echo "DELETING $FILE LOCALLY"
+	    echo "REP $i DELETING $FILE LOCALLY" >> $ERRORLOG
 	    rm $FILE
 	fi
 	
@@ -352,14 +351,14 @@ download_file_boto(){
     GATEWAY="$GATEWAY"
     OPERATION="Boto.download_without_parcel"
 
-    echo "Performing download with boto (no parcel)"
+    echo "Performing download with boto (no parcel)" >> $ERRORLOG
     
     # check to make sure the file does not exist locally, delete it if it does
     if [[ -e $FILE ]]; then
 	rm $FILE
-	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
+	echo -e "Deleted $FILE (locally) before proceeding with download from the bucket" >> $ERRORLOG
     else
-	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
+	echo -e "$FILE is not present locally, proceeding with download from the bucket." >> $ERRORLOG
     fi
     
     # Perform test NUMREPEAT times
@@ -371,7 +370,7 @@ download_file_boto(){
 	    
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
-	    echo -e "\nRunning: \"boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
+	    echo -e "REP $i Running: \"boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"" >> $ERRORLOG
 	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
 	    FINISH_TIME=`date +%s.%N`
 	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
@@ -390,7 +389,7 @@ download_file_boto(){
 	
 	# delete the local file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
-	    echo "DELETING $FILE LOCALLY"
+	    echo "REP $i DELETING $FILE LOCALLY" >> $ERRORLOG
 	    rm $FILE
 	fi
 	
@@ -413,16 +412,15 @@ upload_file_boto(){
     ACCESSKEY="$ACCESSKEY"
     SECRETKEY="$SECRETKEY"
     GATEWAY="$GATEWAY"
-    OPERATION="Boto.upload_without_parcel"
+    OPERATION="Boto.upload_without_parcel" >> $ERRORLOG
 
     echo "Performing upload with boto (no parcel)"
     
      # check to make sure the file exists locally, if not, exit
     if [[ -e $FILE ]]; then
-	echo -e "$\n$FILE exists locally, proceeding to upload\n"
+	echo -e "$FILE exists locally, proceeding to upload" >> $ERRORLOG
     else
-	echo -e "\n$FILE Does not exist locally: exiting\n" >> $ERRORLOG
-	echo -e "\n$FILE Does not exist locally: exiting\n"
+	echo -e "$FILE Does not exist locally: exiting" >> $ERRORLOG
 	exit 1 
     fi
     
@@ -435,7 +433,7 @@ upload_file_boto(){
 	    
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
-	    echo -e "\nRunning: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
+	    echo -e "REP $i Running: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY"  >> $ERRORLOG
 	    boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
 	    FINISH_TIME=`date +%s.%N`
 	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
@@ -454,7 +452,7 @@ upload_file_boto(){
 	
 	# delete the uploaded file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
-	    echo "DELETING $FILE ON THE OBJECT STORE"
+	    echo "REP $i DELETING $FILE ON THE OBJECT STORE" >> $ERRORLOG
 	    s3cmd del s3://$BUCKET/$FILE    
 	fi
 	
@@ -483,7 +481,7 @@ download_file_boto_withp(){
 
     PARCELLOCALHOST=`echo $PARCELLOCALHOSTPORT | cut -f 1 -d ":"`
 
-    echo "Performing download with boto (with parcel)"
+    echo "Performing download with boto (with parcel)" >> $ERRORLOG
     
     # kill parcel if it is already running
     #pkill parcel-tcp2udt
@@ -491,7 +489,7 @@ download_file_boto_withp(){
     pkill parcel-*
     sleep 5s
     # start the parcel service
-    echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
+    echo -e "parcel sever_port: $PARCELSERVERIPPORT" >> $ERRORLOG
     parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
     sleep 5s
     parcel-udt2tcp $PARCELLOCALHOSTPORT &
@@ -500,9 +498,9 @@ download_file_boto_withp(){
     # check to make sure the file does not exist locally, delete it if it does
     if [[ -e $FILE ]]; then
 	rm $FILE
-	echo -e "\nDeleted $FILE (locally) before proceeding with download from the bucket\n"
+	echo -e "Deleted $FILE (locally) before proceeding with download from the bucket" >> $ERRORLOG
     else
-	echo -e "\n$FILE is not present locally, proceeding with download from the bucket.\n"
+	echo -e "$FILE is not present locally, proceeding with download from the bucket." >> $ERRORLOG
     fi
     
     # Perform test NUMREPEAT times
@@ -515,7 +513,7 @@ download_file_boto_withp(){
 	    
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
-	    echo -e "\nRunning: \"boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"\n"
+	    echo -e "REP $i Running: \"boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\"" >> $ERRORLOG
 	    boto_dl.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p
 	    FINISH_TIME=`date +%s.%N`
 	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" |bc -l`
@@ -536,7 +534,7 @@ download_file_boto_withp(){
 	
 	# delete the local file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
-	    echo "DELETING $FILE LOCALLY"
+	    echo "REP $i DELETING $FILE LOCALLY" >> $ERRORLOG
 	    rm $FILE
 	fi
 	
@@ -566,7 +564,7 @@ upload_file_boto_withp(){
 
     PARCELLOCALHOST=`echo $PARCELLOCALHOSTPORT | cut -f 1 -d ":"`
 
-    echo "Performing upload with boto (with parcel)"
+    echo "Performing upload with boto (with parcel)" >> $ERRORLOG
 
     # kill parcel if it is already running
     #pkill parcel-tcp2udt
@@ -574,7 +572,7 @@ upload_file_boto_withp(){
     pkill parcel-*
     sleep 5s
     # start the parcel service
-    echo -e "\nparcel sever_port: "$PARCELSERVERIPPORT"\n"
+    echo -e "\nREP $i parcel sever_port: "$PARCELSERVERIPPORT"\n"
     parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
     sleep 5s
     parcel-udt2tcp $PARCELLOCALHOSTPORT &
@@ -582,10 +580,9 @@ upload_file_boto_withp(){
     
      # check to make sure the file exists locally, if not, exit
     if [[ -e $FILE ]]; then
-	echo -e "$\n$FILE exists locally, proceeding to upload\n"
+	echo -e "$FILE exists locally, proceeding to upload" >> $ERRORLOG
     else
-	echo -e "\n$FILE Does not exist locally: exiting\n" >> $ERRORLOG
-	echo -e "\n$FILE Does not exist locally: exiting\n"
+	echo -e "$FILE Does not exist locally: exiting" >> $ERRORLOG
 	exit 1 
     fi
     
@@ -598,7 +595,7 @@ upload_file_boto_withp(){
 	    
 	    START_TIME=`date +%s.%N`
 	    #s3cmd get s3://$BUCKET/$FILE
-	    echo -e "\nRunning: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p\"\n"
+	    echo -e "\nREP $i Running: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p\"" >> $ERRORLOG
 	    boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p
 	    FINISH_TIME=`date +%s.%N`
 	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
@@ -617,7 +614,7 @@ upload_file_boto_withp(){
 	
 	# delete the uploaded file every iteration except the last
 	if [[ $i -lt $NUMREPEATS ]]; then
-	    echo "DELETING $FILE ON THE OBJECT STORE"
+	    echo "REP $i DELETING $FILE ON THE OBJECT STORE" >> $ERRORLOG
 	    s3cmd del s3://$BUCKET/$FILE    
 	fi
 	
