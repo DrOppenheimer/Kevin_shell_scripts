@@ -42,6 +42,10 @@ FILE1="ERR_tar.1Gb.gz"
 FILE2="ERR_tar.11Gb.gz"
 #FILE3="ERR_tar.59Gb.gz"
 
+# Insert a sub to check that all of the test files are already in the bucket, if not, get them from some other backup location
+#
+#
+
 DENOMGB=`echo 2^30 | bc` # i.e. bytes in GB
 DENOMMB=`echo 2^20 | bc` # i.e. bytes in MB
 
