@@ -628,10 +628,10 @@ upload_file_boto_withp(){
 for FILE in $FILE0
 do
     # (1) Add s3cmd dl               # DONE
-    download_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB 2> $MYLOG
+    download_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
 
     # (2) Add s3cmd ul               # DONE
-    upload_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB 2> $MYLOG
+    upload_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB
 
     # (3) Add s3cmd dl with parcel   # possible?
     
