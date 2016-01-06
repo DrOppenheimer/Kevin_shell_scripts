@@ -3,6 +3,7 @@
 # number of times to perform the operation
 NUMREPEATS=3;
 MYLOG="rw_log.txt";
+ERRORLOG="rw_error_log.txt"
 MYBUCKET="test_bucket"
 PARCELSERVERIPPORT="192.170.232.76:9000";
 PARCELLOCALHOSTPORT="parcel.opensciencedatacloud.org:9000"
@@ -67,8 +68,9 @@ download_file_s3cmd(){
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
-    DENOMGB=$5
-    DENOMMB=$6
+    ERRORLOG=$5
+    DENOMGB=$6
+    DENOMMB=$7
     OPERATION="s3cmd_get.download_without_parcel"
 
     # check to make sure the file does not exist locally, delete it if it does
@@ -102,7 +104,7 @@ download_file_s3cmd(){
 	    my_transfer_rate_mps=`echo "$my_size_mb/$ELAPSED_TIME"| bc -l`
 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 	else
-	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $ERRORLOG 
 	fi
 
 	# delete the local file every iteration except the last
@@ -122,8 +124,9 @@ upload_file_s3cmd(){
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
-    DENOMGB=$5
-    DENOMMB=$6
+    ERRORLOG=$5
+    DENOMGB=$6
+    DENOMMB=$7
     OPERATION="s3cmd_sync.upload_without_parcel"
 
     echo "Performing upload with s3cmd (no parcel)"
@@ -257,10 +260,11 @@ download_file_wget_withp(){
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
-    DENOMGB=$5
-    DENOMMB=$6
-    PARCELSERVERIPPORT=$7
-    PARCELLOCALHOSTPORT=$8
+    ERRORLOG=$5
+    DENOMGB=$6
+    DENOMMB=$7
+    PARCELSERVERIPPORT=$8
+    PARCELLOCALHOSTPORT=$9
     OPERATION="wget.download_with_parcel"
 
     echo "Performing download with wget (with parcel)"
@@ -311,7 +315,7 @@ download_file_wget_withp(){
 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 
 	else
-	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $ERRORLOG 
 	fi
 
 	# delete the local file every iteration except the last
@@ -339,8 +343,9 @@ download_file_boto(){
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
-    DENOMGB=$5
-    DENOMMB=$6
+    ERRORLOG=$5
+    DENOMGB=$6
+    DENOMMB=$7
     source ~/.profile
     ACCESSKEY="$ACCESSKEY"
     SECRETKEY="$SECRETKEY"
@@ -380,7 +385,7 @@ download_file_boto(){
 	    
 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 	else
-	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $ERRORLOG 
 	fi
 	
 	# delete the local file every iteration except the last
@@ -401,8 +406,9 @@ upload_file_boto(){
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
-    DENOMGB=$5
-    DENOMMB=$6
+    ERRORLOG=$5
+    DENOMGB=$6
+    DENOMMB=$7
     source ~/.profile
     ACCESSKEY="$ACCESSKEY"
     SECRETKEY="$SECRETKEY"
@@ -415,7 +421,7 @@ upload_file_boto(){
     if [[ -e $FILE ]]; then
 	echo -e "$\n$FILE exists locally, proceeding to upload\n"
     else
-	echo -e "\n$FILE Does not exist locally: exiting\n" >> $LOG
+	echo -e "\n$FILE Does not exist locally: exiting\n" >> $ERRORLOG
 	echo -e "\n$FILE Does not exist locally: exiting\n"
 	exit 1 
     fi
@@ -443,7 +449,7 @@ upload_file_boto(){
 	    
 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 	else
-	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $ERRORLOG 
 	fi
 	
 	# delete the uploaded file every iteration except the last
@@ -464,10 +470,11 @@ download_file_boto_withp(){
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
-    DENOMGB=$5
-    DENOMMB=$6
-    PARCELSERVERIPPORT=$7
-    PARCELLOCALHOSTPORT=$8
+    ERRORLOG=$5
+    DENOMGB=$6
+    DENOMMB=$7
+    PARCELSERVERIPPORT=$8
+    PARCELLOCALHOSTPORT=$9
     source ~/.profile
     ACCESSKEY="$ACCESSKEY"
     SECRETKEY="$SECRETKEY"
@@ -524,7 +531,7 @@ download_file_boto_withp(){
 
 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 	else
-	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $ERRORLOG 
 	fi
 	
 	# delete the local file every iteration except the last
@@ -548,8 +555,9 @@ upload_file_boto_withp(){
     FILE=$2
     NUMREPEATS=$3
     LOG=$4
-    DENOMGB=$5
-    DENOMMB=$6
+    ERRORLOG=$5
+    DENOMGB=$6
+    DENOMMB=$7
     source ~/.profile
     ACCESSKEY="$ACCESSKEY"
     SECRETKEY="$SECRETKEY"
@@ -576,7 +584,7 @@ upload_file_boto_withp(){
     if [[ -e $FILE ]]; then
 	echo -e "$\n$FILE exists locally, proceeding to upload\n"
     else
-	echo -e "\n$FILE Does not exist locally: exiting\n" >> $LOG
+	echo -e "\n$FILE Does not exist locally: exiting\n" >> $ERRORLOG
 	echo -e "\n$FILE Does not exist locally: exiting\n"
 	exit 1 
     fi
@@ -604,7 +612,7 @@ upload_file_boto_withp(){
 	    
 	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 	else
-	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $LOG 
+	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $ERRORLOG 
 	fi
 	
 	# delete the uploaded file every iteration except the last
@@ -638,10 +646,10 @@ upload_file_boto_withp(){
 for FILE in $FILE0
 do
     # (1) Add s3cmd dl               # DONE
-    download_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB 2>> $MYLOG
+    download_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
 
     # (2) Add s3cmd ul               # DONE
-    upload_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB 2>> $MYLOG
+    upload_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
 
     # (3) Add s3cmd dl with parcel   # possible?
     
@@ -652,20 +660,20 @@ do
     # (6) Add wput ul                # possible?
     
     # (7) Add wget dl with parcel    # DONE
-    download_file_wget_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT 2>> $MYLOG    
+    download_file_wget_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT 2>> $ERRORLOG 
     # (8) Add wput ul with parcel    # possible?
     
     # (9) Add boto dl                #
-    download_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB 2>> $MYLOG
+    download_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
     
     # (10) Add boto ul               #
-    upload_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB 2>> $MYLOG
+    upload_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
 
     # (11) Add boto dl with parcel   #
-    download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT  2>> $MYLOG # some sort of problem with this function
+    download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT  2>> $ERRORLOG # some sort of problem with this function
     
     # (12) Add boto ul with parcel   #
-    upload_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT 2>> $MYLOG
+    upload_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT 2>> $ERRORLOG
     
 done
 
