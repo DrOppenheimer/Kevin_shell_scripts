@@ -56,7 +56,9 @@ echo -e "# File\tDate_stamp\tsize(Gb)\tOperation\tTransfer_time\tTransfer_rate(G
 ########################################################################################################
 # (1) function to download data (using s3cmd get without parcel) # THIS WORKS
 download_file_s3cmd(){
-  
+
+    echo "Performing download with s3cmd (no parcel)"
+    
     BUCKET=$1
     FILE=$2
     NUMREPEATS=$3
@@ -119,6 +121,8 @@ upload_file_s3cmd(){
     DENOMGB=$5
     DENOMMB=$6
     OPERATION="s3cmd_sync.upload_without_parcel"
+
+    echo "Performing upload with s3cmd (no parcel)"
 
     # check to make sure the file exists locally, if not, exit
     if [[ -e $FILE ]]; then
@@ -254,6 +258,8 @@ download_file_wget_withp(){
     PARCELLOCALHOSTPORT=$8
     OPERATION="wget.download_with_parcel"
 
+    echo "Performing download with wget (with parcel)"
+
     # kill parcel if it is already running
     #pkill parcel-tcp2udt
     #pkill parcel-udt2tcp
@@ -334,6 +340,8 @@ download_file_boto(){
     SECRETKEY="$SECRETKEY"
     GATEWAY="$GATEWAY"
     OPERATION="Boto.download_without_parcel"
+
+    echo "Performing download with boto (no parcel)"
     
     # check to make sure the file does not exist locally, delete it if it does
     if [[ -e $FILE ]]; then
@@ -393,6 +401,8 @@ upload_file_boto(){
     SECRETKEY="$SECRETKEY"
     GATEWAY="$GATEWAY"
     OPERATION="Boto.upload_without_parcel"
+
+    echo "Performing upload with boto (no parcel)"
     
      # check to make sure the file exists locally, if not, exit
     if [[ -e $FILE ]]; then
@@ -458,6 +468,8 @@ download_file_boto_withp(){
 
     PARCELLOCALHOST=`echo $PARCELLOCALHOSTPORT | cut -f 1 -d ":"`
 
+    echo "Performing download with boto (with parcel)"
+    
     # kill parcel if it is already running
     #pkill parcel-tcp2udt
     #pkill parcel-udt2tcp
@@ -536,6 +548,8 @@ upload_file_boto_withp(){
     OPERATION="Boto.upload_with_parcel"
 
     PARCELLOCALHOST=`echo $PARCELLOCALHOSTPORT | cut -f 1 -d ":"`
+
+    echo "Performing upload with boto (with parcel)"
 
     # kill parcel if it is already running
     #pkill parcel-tcp2udt
