@@ -135,7 +135,7 @@ upload_file_s3cmd(){
     if [[ -e $FILE ]]; then
 	echo -e "$\n$FILE exists locally, proceeding to upload\n"
     else
-	echo -e "\n$FILE Does not exist locally: exiting\n" >> $LOG
+	echo -e "\n$FILE Does not exist locally: exiting\n" >> $ERRORLOG
 	echo -e "\n$FILE Does not exist locally: exiting\n"
 	exit 1 
     fi
