@@ -638,7 +638,6 @@ do
     # (4) Add s3cmd ul with parcel   # possible?
     
     # (5) Add wget dl                # possible? # under development 
-    # download_file_wget $MYBUCKET $FILE $NUMREPEATS $MYLOG $DENOM $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT
     
     # (6) Add wput ul                # possible?
     
