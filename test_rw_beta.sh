@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # number of times to perform the operation
-NUMREPEATS=1;
+NUMREPEATS=3;
 MYLOG="rw_log.txt";
 MYBUCKET="test_bucket"
 PARCELSERVERIPPORT="192.170.232.76:9000";
