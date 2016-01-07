@@ -661,16 +661,16 @@ do
     # (8) Add wput ul with parcel    # possible?
     
     # (9) Add boto dl                #
-    #->#download_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
+    download_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
     
     # (10) Add boto ul               #
-    upload_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
+    #upload_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
 
     # (11) Add boto dl with parcel   #
-    download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT  2>> $ERRORLOG # some sort of problem with this function
+    #download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT  2>> $ERRORLOG # some sort of problem with this function
     
     # (12) Add boto ul with parcel   #
-    upload_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT 2>> $ERRORLOG
+    #upload_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT 2>> $ERRORLOG
     
 done
 
