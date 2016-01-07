@@ -427,6 +427,13 @@ upload_file_boto(){
     # Perform test NUMREPEAT times
     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
     do
+
+	# delete the file in the bucket if it already exists in the bucket
+	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
+	if [[ $file_check -gt 0 ]]; then
+	    s3cmd del s3://$BUCKET/$FILE
+	    echo -e "REP $i $FILE exists in bucket, delete before proceeding with upload"  >> $ERRORLOG
+	fi
 	
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
