@@ -28,8 +28,8 @@ echo "GATEWAY   = $GATEWAY"
 # (8) Add wput ul with parcel    # possible?
 # (9) Add boto dl                # DONE
 # (10) Add boto ul               # DONE
-# (11) Add boto dl with parcel   # DONE
-# (12) Add boto ul with parcel   # DONE
+# (11) Add boto dl with parcel   # DEBUGGING
+# (12) Add boto ul with parcel   # DEBUGGING
 
 
 # ...
@@ -44,8 +44,8 @@ FILE2="ERR_tar.11Gb.gz"
 #FILE3="ERR_tar.59Gb.gz"
 
 # Insert a sub to check that all of the test files are already in the bucket, if not, get them from some other backup location
-#
-#
+# There are backup copies of the files in s3://test_files/
+# s3://test_bucket/ is used for the tests below
 
 DENOMGB=`echo 2^30 | bc` # i.e. bytes in GB
 DENOMMB=`echo 2^20 | bc` # i.e. bytes in MB
@@ -478,12 +478,12 @@ download_file_boto_withp(){
     PARCELLOCALHOST=`echo $PARCELLOCALHOSTPORT | cut -f 1 -d ":"`
 
     echo "Performing download with boto (with parcel)" >> $ERRORLOG
-    
+
+    # pauses below are to make sure that parcel has time to stop or start
     # kill parcel if it is already running
     #pkill parcel-tcp2udt
     #pkill parcel-udt2tcp
-    pkill parcel-*
-    sleep 5s
+    pkill parcel*
     # start the parcel service
     echo -e "parcel sever_port: $PARCELSERVERIPPORT" >> $ERRORLOG
     parcel-tcp2udt $PARCELSERVERIPPORT & # > ./parcel.log 2>&1 & # <--- script dies here
@@ -660,10 +660,10 @@ do
     #download_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
     
     # (10) Add boto ul               #
-    upload_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
+    #upload_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
 
     # (11) Add boto dl with parcel   #
-    #download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT  2>> $ERRORLOG # some sort of problem with this function
+    download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT  2>> $ERRORLOG # some sort of problem with this function
     
     # (12) Add boto ul with parcel   #
     #upload_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT 2>> $ERRORLOG
