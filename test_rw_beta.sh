@@ -28,7 +28,7 @@ echo "GATEWAY   = $GATEWAY"
 # (8) Add wput ul with parcel    # possible?
 # (9) Add boto dl                # DONE
 # (10) Add boto ul               # DONE
-# (11) Add boto dl with parcel   # DEBUGGING
+# (11) Add boto dl with parcel   # DONE? # But ask shell guru about weirdness with port argument in boto_dl.py
 # (12) Add boto ul with parcel   # DEBUGGING
 
 
@@ -586,34 +586,30 @@ upload_file_boto_withp(){
     # Perform test NUMREPEAT times
     for (( i=1; i<=$NUMREPEATS; i++ )); # tried using NUMREPEAT var here -- does not work
     do
-	
+
+	# delete the file in the bucket if it already exists in the bucket
 	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
 	if [[ $file_check -gt 0 ]]; then
-	    
-	    START_TIME=`date +%s.%N`
-	    #s3cmd get s3://$BUCKET/$FILE
-	    echo -e "REP $i Running: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p\"" >> $ERRORLOG
-	    boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p
-	    FINISH_TIME=`date +%s.%N`
-	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
-	    
-	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	    my_size_gb=`echo  "$my_size / $DENOMGB" | bc -l`
-	    my_size_mb=`echo  "$my_size / $DENOMMB" | bc -l`
-
-	    my_transfer_rate_gps=`echo  "$my_size_gb / $ELAPSED_TIME" | bc -l`
-	    my_transfer_rate_mps=`echo  "$my_size_mb / $ELAPSED_TIME" | bc -l`
-	    
-	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
-	else
-	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $ERRORLOG 
+	    s3cmd del s3://$BUCKET/$FILE
+	    echo -e "REP $i $FILE exists in bucket, delete before proceeding with upload"  >> $ERRORLOG
 	fi
 	
-	# delete the uploaded file every iteration except the last
-	if [[ $i -lt $NUMREPEATS ]]; then
-	    echo "REP $i DELETING $FILE ON THE OBJECT STORE" >> $ERRORLOG
-	    s3cmd del s3://$BUCKET/$FILE    
-	fi
+	# perform the upload
+	START_TIME=`date +%s.%N`
+	#s3cmd get s3://$BUCKET/$FILE
+	echo -e "REP $i Running: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p\"" >> $ERRORLOG
+	boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY -p
+	FINISH_TIME=`date +%s.%N`
+	ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
+	    
+	my_size=`ls -ltr $FILE | cut -d " " -f 5`
+	my_size_gb=`echo  "$my_size / $DENOMGB" | bc -l`
+	my_size_mb=`echo  "$my_size / $DENOMMB" | bc -l`
+
+	my_transfer_rate_gps=`echo  "$my_size_gb / $ELAPSED_TIME" | bc -l`
+	my_transfer_rate_mps=`echo  "$my_size_mb / $ELAPSED_TIME" | bc -l`
+	
+	echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
 	
     done
 
@@ -664,10 +660,10 @@ do
     #upload_file_boto $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
 
     # (11) Add boto dl with parcel   #
-    download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT  2>> $ERRORLOG # some sort of problem with this function
+    #download_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT  2>> $ERRORLOG # some sort of problem with this function
     
     # (12) Add boto ul with parcel   #
-    #upload_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT 2>> $ERRORLOG
+    upload_file_boto_withp $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB $PARCELSERVERIPPORT $PARCELLOCALHOSTPORT 2>> $ERRORLOG
     
 done
 
