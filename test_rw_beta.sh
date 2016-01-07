@@ -630,8 +630,8 @@ upload_file_boto_withp(){
 ### Need to characterize this error in the future.
 
 #for FILE in $FILE0 $FILE1 $FILE2;
-#for FILE in $FILE0 $FILE1
-for FILE in $FILE0
+for FILE in $FILE0 $FILE1
+#for FILE in $FILE0
 do
     # (1) Add s3cmd dl               # DONE
     download_file_s3cmd $MYBUCKET $FILE $NUMREPEATS $MYLOG $ERRORLOG $DENOMGB $DENOMMB 2>> $ERRORLOG
