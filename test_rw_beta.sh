@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # number of times to perform the operation
-NUMREPEATS=3;
+NUMREPEATS=5;
 MYLOG="rw_results.txt";
 ERRORLOG="rw_running_log.txt"
 MYBUCKET="test_bucket"
@@ -629,8 +629,8 @@ upload_file_boto_withp(){
 ### Main loop interates through the list of files - cut out 56GB as it may have run into a mem error
 ### Need to characterize this error in the future.
 
-#for FILE in $FILE0 $FILE1 $FILE2;
-for FILE in $FILE0 $FILE1
+for FILE in $FILE0 $FILE1 $FILE2;
+#for FILE in $FILE0 $FILE1
 #for FILE in $FILE0
 do
     # (1) Add s3cmd dl               # DONE
