@@ -434,35 +434,24 @@ upload_file_boto(){
 	    s3cmd del s3://$BUCKET/$FILE
 	    echo -e "REP $i $FILE exists in bucket, delete before proceeding with upload"  >> $ERRORLOG
 	fi
-	
-	file_check=`s3cmd ls s3://$BUCKET/$FILE | wc -l`
-	if [[ $file_check -gt 0 ]]; then
-	    
-	    START_TIME=`date +%s.%N`
-	    #s3cmd get s3://$BUCKET/$FILE
-	    echo -e "REP $i Running: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\""  >> $ERRORLOG
-	    boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
-	    FINISH_TIME=`date +%s.%N`
-	    ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
-	    
-	    my_size=`ls -ltr $FILE | cut -d " " -f 5`
-	    my_size_gb=`echo  "$my_size / $DENOMGB" | bc -l`
-	    my_size_mb=`echo  "$my_size / $DENOMMB" | bc -l`
 
-	    my_transfer_rate_gps=`echo  "$my_size_gb / $ELAPSED_TIME" | bc -l`
-	    my_transfer_rate_mps=`echo  "$my_size_mb / $ELAPSED_TIME" | bc -l`
-	    
-	    echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
-	else
-	    echo -e $FILE"\tERROR, file does not exist in bucket: "$BUCKET >> $ERRORLOG 
-	fi
+	# perform the upload
+	START_TIME=`date +%s.%N`
+	#s3cmd get s3://$BUCKET/$FILE
+	echo -e "REP $i Running: \"boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY\""  >> $ERRORLOG
+	boto_ul.py -f $FILE -a $ACCESSKEY -s $SECRETKEY -b $BUCKET -g $GATEWAY
+	FINISH_TIME=`date +%s.%N`
+	ELAPSED_TIME=`echo "$FINISH_TIME - $START_TIME" | bc -l`
 	
-	# delete the uploaded file every iteration except the last
-	if [[ $i -lt $NUMREPEATS ]]; then
-	    echo "REP $i DELETING $FILE ON THE OBJECT STORE" >> $ERRORLOG
-	    s3cmd del s3://$BUCKET/$FILE    
-	fi
+	my_size=`ls -ltr $FILE | cut -d " " -f 5`
+	my_size_gb=`echo  "$my_size / $DENOMGB" | bc -l`
+	my_size_mb=`echo  "$my_size / $DENOMMB" | bc -l`
 	
+	my_transfer_rate_gps=`echo  "$my_size_gb / $ELAPSED_TIME" | bc -l`
+	my_transfer_rate_mps=`echo  "$my_size_mb / $ELAPSED_TIME" | bc -l`
+	
+	echo -e $FILE"\t"`date`"\t"$my_size_gb"\t"$OPERATION"\t"$ELAPSED_TIME"\t"$my_transfer_rate_gps"\t"$my_transfer_rate_mps"\t"$i >> $LOG
+		
     done
         
 }
