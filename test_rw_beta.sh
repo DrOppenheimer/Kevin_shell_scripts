@@ -2,8 +2,8 @@
 
 # number of times to perform the operation
 NUMREPEATS=3;
-MYLOG="rw_log.txt";
-ERRORLOG="rw_error_log.txt"
+MYLOG="rw_results.txt";
+ERRORLOG="rw_running_log.txt"
 MYBUCKET="test_bucket"
 PARCELSERVERIPPORT="192.170.232.76:9000";
 PARCELLOCALHOSTPORT="parcel.opensciencedatacloud.org:9000"
