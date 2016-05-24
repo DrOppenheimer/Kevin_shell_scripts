@@ -1,0 +1,4 @@
+my_proxy="http://cloud-proxy:3128";
+export http_proxy=$my_proxy;
+export https_proxy=$my_proxy;
+export ftp_proxy=$my_proxy;
