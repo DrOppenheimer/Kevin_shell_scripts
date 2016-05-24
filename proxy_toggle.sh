@@ -1,6 +1,6 @@
 #!/bin/bash
 # simple tool to toggle proxy vars on or off
-if [ -v $http_proxy ]; then
+if [[ -v http_proxy ]]; then
     echo "unsetting proxy_vars";
     . ~/git/Kevin_shell_scripts/unset_proxy;
 else
