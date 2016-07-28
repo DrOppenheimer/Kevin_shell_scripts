@@ -99,13 +99,14 @@ if [ ! -f $LOG ]; then  # THERE IS NO LOG
     ln -s /mnt/SCRATCH/ SCRATCH
     
     ### enter sudo prompt
-    sudo su
-
+    #sudo su
+    sudo bash << EOFSHELL_1
+    
     ### update
     apt-get update
 
     ### install emacs
-    apt-get install -y emacs
+    apt-get install -y emacs htop
     
     ### create log file
     touch $LOG
@@ -164,7 +165,9 @@ if [ ! -f $LOG ]; then  # THERE IS NO LOG
     echo "DOCKER_OPTS=\"--dns 8.8.8.8 --dns 8.8.4.4 -g /mnt/SCRATCH/docker/\"" >> /etc/default/docker
     echo "export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128" >> /etc/default/docker
 
-    #service docker restart # Kevin edit 
+    #service docker restart # Kevin edit
+    EOFSHELL_1
+    
     #exit # exit sudo
     #exit # LOGOUT  
     sudo reboot # use reboot instead - will force second phase of installation
@@ -180,6 +183,7 @@ else # THERE IS A LOG AND IT INDICATES THAT PHASE I IS DONE, BUT PHASE II IS NOT
    
     ### run docker daemon
     sudo restart docker
+    echo "sudo restart docker" >> ~/.profile
     
     ### install the images
     cd /mnt/SCRATCH/images
@@ -187,9 +191,11 @@ else # THERE IS A LOG AND IT INDICATES THAT PHASE I IS DONE, BUT PHASE II IS NOT
     cd ~
     
     ### (2) On VM, ensure virtualenvwrapper and nodejs are installed:
-    sudo su
+    #sudo su
+    sudo bash << EOFSHELL_2
     apt-get update && apt-get install -y virtualenvwrapper nodejs  # <-- stopped here 7-27-16
-    exit
+    EOFSHELL_2
+    #exit
     
     ### (3) configure virtualenvwrapper
     echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> ~/.bashrc
