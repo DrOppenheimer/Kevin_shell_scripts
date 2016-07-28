@@ -57,19 +57,19 @@
 # /mnt/SCRATCH/coclean/dbsnp_144.hg38.vcf.gz (on 172.16.165.255)
 
 # the following files were placed as public read on Griffin Object Store
-GRCh38.d1.vd1.fa
-dbsnp_144.hg38.vcf.gz
+# GRCh38.d1.vd1.fa
+# dbsnp_144.hg38.vcf.gz
 
-bam_readgroup_to_json.tar
-biobambam_tool.tar
-fastqc_db.tar
-merge_sqlite.tar
-readgroup_json_db.tar
-bam_reheader.tar
-bwa_tool.tar
-fastqc_tool.tar
-picard_tool.tar
-samtools_tool.tar
+# bam_readgroup_to_json.tar
+# biobambam_tool.tar
+# fastqc_db.tar
+# merge_sqlite.tar
+# readgroup_json_db.tar
+# bam_reheader.tar
+# bwa_tool.tar
+# fastqc_tool.tar
+# picard_tool.tar
+# samtools_tool.tar
 
 # Tested on VM started like this
 ## nova boot --image 673d28c9-6b33-4e13-84a0-52e3776685e8 --flavor 30 --key-name kevin_PDC_genomel genomel_GDC_port
@@ -78,9 +78,22 @@ samtools_tool.tar
 
 #################################################################################################
 
+# name of log file that tracks both stages of installation
+LOG="/home/ubuntu/.DNASeq.install_log.txt"
 
-if [ ! -f ~/.DNASeq.install_log.txt ]; then
+if [ ! -f $LOG ]; then  # THERE IS NO LOG
     echo "File not found!"
+
+    ### create scratch space, and space for tar'ed images that will be downloaded
+    chmod -R 777 /mnt
+    mkdir -p /mnt/SCRATCH
+    mkdir -p /mnt/SCRATCH/images
+    mkdir -p /mnt/SCRATCH/tmp
+    mkdir -p /mnt/SCRATCH/coclean
+    mkdir -p /mnt/SCRATCH/grch38
+    mkdir -p /mnt/SCRATCH/genoMel_harmon
+    cd ~
+    ln -s /mnt/SCRATCH/ SCRATCH
     
     ### enter sudo prompt
     sudo su
@@ -92,25 +105,15 @@ if [ ! -f ~/.DNASeq.install_log.txt ]; then
     apt-get install -y emacs
     
     ### create log file
-    LOG="/home/ubuntu/.DNASeq.install_log.txt"
     touch $LOG
+    chmod 777 $LOG
 
     ### set proxy vars
-    echo "Acquire::http::Proxy \"http://cloud-proxy:3128\"" >> /etc/apt/apt.conf.d/01Proxy # returns error # E: Syntax error /etc/apt/apt.conf.d/01Proxy:4: Extra junk at end of file
-    echo "Acquire::http::Proxy \"http://cloud-proxy:3128\"" >> /etc/apt/apt.conf.d/01Proxy # returns error # see line above
+    echo "Acquire::http::Proxy \"http://cloud-proxy:3128\";" >> /etc/apt/apt.conf.d/01Proxy # returns error # E: Syntax error /etc/apt/apt.conf.d/01Proxy:4: Extra junk at end of file
+    echo "Acquire::https::Proxy \"http://cloud-proxy:3128\";" >> /etc/apt/apt.conf.d/01Proxy # returns error # see line above
     export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128
+    #echo "export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128" >> ~/.profile
     
-    ### create scratch space, and space for tar'ed images that will be downloaded
-    chown 777 /mnt
-    mkdir -p /mnt/SCRATCH
-    mkdir -p /mnt/SCRATCH/images
-    mkdir -p /mnt/SCRATCH/tmp
-    mkdir -p /mnt/SCRATCH/coclean
-    mkdir -p /mnt/SCRATCH/grch38
-    mkdir -p /mnt/SCRATCH/genoMel_harmon
-    cd ~
-    ln -s /mnt/SCRATCH/ SCRATCH
-
     # copy accessory files
     cd ~
     wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/virtualenvs.tar.gz --no-check-certificate
@@ -132,8 +135,10 @@ if [ ! -f ~/.DNASeq.install_log.txt ]; then
     wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/picard_tool.tar --no-check-certificate
     cd /mnt/SCRATCH/coclean
     wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/dbsnp_144.hg38.vcf.gz --no-check-certificate
-    cd /mnt/SCRATCH/grch38
-    wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/GRCh38.d1.vd1.fa --no-check-certificate
+    cd /mnt/SCRATCH/
+    wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/grch38.tar.gz --no-check-certificate
+    tar -xzf grch38.tar.gz
+    rm grch38.tar.gz
     cd /mnt/SCRATCH/genoMel_harmon
     wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/genoMel.KHP_4.json --no-check-certificate
     wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/genoMel.GDNA_50.json --no-check-certificate
@@ -161,10 +166,15 @@ if [ ! -f ~/.DNASeq.install_log.txt ]; then
 
     # print something to log
     echo "PHASE I complete, one more to go" >> $LOG
-    
-    ### ---> AT THIS POINT LOG BACK IN <--- ###
 
+    sudo reboot
 
+elif grep -q "PHASE II complete" $LOG; then # THERE IS A LOG AND IT INDICATES THAT PHASE II IS DONE
+
+    echo "It looks as though install already ran, delete ~/.DNASeq.install_log.txt and try again if you wish to run this installer"
+
+else # THERE IS A LOG AND IT INDICATES THAT PHASE I IS DONE, BUT PHASE II IS NOT
+   
     ### run docker daemon
     sudo restart docker
     
@@ -175,17 +185,19 @@ if [ ! -f ~/.DNASeq.install_log.txt ]; then
     
     ### (2) On VM, ensure virtualenvwrapper and nodejs are installed:
     sudo su
-    apt-get update && apt-get install -y virtualenvwrapper nodejs
+    apt-get update && apt-get install -y virtualenvwrapper nodejs  # <-- stopped here 7-27-16
     exit
     
     ### (3) configure virtualenvwrapper
     echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> ~/.bashrc
-
+    source ~/.bashrc
+    
     ### (4) enable proxy to access pypi.org (non sudo)
     export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128
 
     ### (5) --- alternative step 5
     # (5) Instead of step 5, on 172.16.165.255, do
+    cd ~
     rsync -av --progress .virtualenvs new_vm
     
     # (6) When virtualenv is first created (3), the vitualenv will be activated. To activate virtualenv on later login sessions:
@@ -193,101 +205,23 @@ if [ ! -f ~/.DNASeq.install_log.txt ]; then
     
     ### (7) upgrade pip
     sudo -E pip install --upgrade pip
-
+    
     ### (8-10) Skip steps 8-9, 10 is edited below
 
     ### (10) Instead of step 10, on 172.16.165.255, do
     rsync -av --progress cocleaning-cwl new_vm
-
-    ### (11) Make dir to store harmonized data
-    mkdir -p /mnt/SCRATCH/genoMel_harmon
-    cd /mnt/SCRATCH/genoMel_harmon
+ 
+    ### write to the log file
+    echo "PHASE II complete, one more to go" >> $LOG
 
     ### (12) Run workflow (HERE FOR REFERENCE ONLY)
     # # see genomel_boto.7-20-16 for using boto to get sample data from cleversafe
     # workon cwl
     # cd /mnt/SCRATCH/genoMel_harmon
-    # nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/ --tmp-outdir-prefix /mnt/SCRATCH/tmp/  --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml  genoMel.KHP_4.json 2> DNASeq_install.error.log.txt &
+    # nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/ --tmp-outdir-prefix /mnt/SCRATCH/tmp/ --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.KHP_4.json &
+    # rm -R /mnt/SCRATCH/test/tmp*
     # # for example file 1
-    # nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/ --tmp-outdir-prefix /mnt/SCRATCH/tmp/  --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml  genoMel.GDNA_50.json 2> DNASeq_install.error.log.txt &
+    # nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/ --tmp-outdir-prefix /mnt/SCRATCH/tmp/ --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml  /mnt/SCRATCH/genoMel_harmon/genoMel.GDNA_50.json &
+    # rm -R /mnt/SCRATCH/test/tmp*
     
-else
-    echo "It looks as though install already ran, delete ~/.DNASeq.install_log.txt and try again if you wish to run this installer"
 fi
-
-
-# ran this successfully -- with the corrected files
-
-
-
-
-
-
-
-
-
-Fix up Docker
-
-$ sudo su
-## ensure following lines in /etc/apt/apt.conf.d/01Proxy:
-          Acquire::http::Proxy "http://cloud-proxy:3128";
-          Acquire::https::Proxy "http://cloud-proxy:3128";
-# mkdir /mnt/SCRATCH
-# chown 777 /mnt/SCRATCH
-# aptitude install apt-transport-https ca-certificates
-# export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128
-# apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
-# echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" > /etc/apt/sources.list.d/docker.list
-# aptitude update && aptitude install docker-engine -y
-# mkdir /mnt/SCRATCH/docker
-# chown ubuntu /home/ubuntu/.dockercfg
-# gpasswd -a ubuntu docker
-# echo "DOCKER_OPTS=\"--dns 8.8.8.8 --dns 8.8.4.4 -g /mnt/SCRATCH/docker/\"" >> /etc/default/docker
-# echo "export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128" >> /etc/default/docker
-# service docker restart
-# exit
-$ exit (only gain group access to docker when exit/login)
-On VM, ensure virtualenvwrapper and nodejs are installed:
-
-$ sudo su -
-# apt-get update && apt-get install virtualenvwrapper nodejs -y
-# exit
-configure virtualenvwrapper
-
-$ grep virtualenvwrapper.sh ~/.bashrc
-if there is no result:
-      $ echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> ~/.bashrc
-      $ exit
-enable proxy to access pypi.org
-
-$ export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128;
-create a virtualenv for cwltool
-
-$ mkvirtualenv --python /usr/bin/python2 cwl
-When virtualenv is first created (3), the vitualenv will be activated. To activate virtualenv on later login sessions:
-
-$ workon cwl
-To deactive a virtualenv:
-      $ deactivate
-upgrade pip
-
-$ pip install --upgrade pip
-get the CDIS patched version of cwltool
-
-$ wget https://github.com/jeremiahsavage/cwltool/archive/0.1.tar.gz
-install cwltool and its dependencies
-
-$ pip install 0.1.tar.gz --no-cache-dir
-get the DNASeq CWL Workflow
-
-$ cd ${HOME}
-$ git clone git@github.com:NCI-GDC/cocleaning-cwl.git
-$ cd cocleaning-cwl/
-$ git checkout feat/dnaseq_workflow
-Make dir to store harmonized data
-
-$ mkdir -p /mnt/SCRATCH/genoMel_harmon
-$ cd /mnt/SCRATCH/genoMel_harmon
-Run workflow
-
-$  cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/ --tmp-outdir-prefix /mnt/SCRATCH/tmp/  --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml  ~/cocleaning-cwl/workflows/dnaseq/genoMel.json
