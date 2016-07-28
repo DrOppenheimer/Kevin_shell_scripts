@@ -4,7 +4,10 @@
 # adapted from https://github.com/NCI-GDC/cocleaning-cwl/tree/master/workflows/dnaseq with additional notes from Jeremiah, 7-25-16
 # (numbers correspond to those in the above repo 7-25-16; several edited or omitted based on Jeremiah's notes)
 # check to see if install already ran (i.e. on reboot)
-
+#
+# This was tested on a VM started like this:
+# nova boot --image 673d28c9-6b33-4e13-84a0-52e3776685e8 --flavor 30 --key-name kevin_PDC_genomel genomel_GDC_port
+#
 # assumes that the following two directories are already present in the image
 #      /home/ubuntu/cocleaning-cwl # from https://github.com/NCI-GDC/cocleaning-cwl
 #      /home/ubuntu/.virtualenvs # .virtualenvs # from originals that Jeremiah configured (on genomel-dev, 172.16.165.255)
@@ -85,7 +88,7 @@ if [ ! -f $LOG ]; then  # THERE IS NO LOG
     echo "File not found!"
 
     ### create scratch space, and space for tar'ed images that will be downloaded
-    chmod -R 777 /mnt
+    sudo chmod -R 777 /mnt
     mkdir -p /mnt/SCRATCH
     mkdir -p /mnt/SCRATCH/images
     mkdir -p /mnt/SCRATCH/tmp
@@ -160,14 +163,14 @@ if [ ! -f $LOG ]; then  # THERE IS NO LOG
     gpasswd -a ubuntu docker
     echo "DOCKER_OPTS=\"--dns 8.8.8.8 --dns 8.8.4.4 -g /mnt/SCRATCH/docker/\"" >> /etc/default/docker
     echo "export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128" >> /etc/default/docker
-    #service docker restart # Kevin edit 
-    exit # exit sudo
-    exit # LOGOUT  
 
+    #service docker restart # Kevin edit 
+    #exit # exit sudo
+    #exit # LOGOUT  
+    sudo reboot # use reboot instead - will force second phase of installation
+    
     # print something to log
     echo "PHASE I complete, one more to go" >> $LOG
-
-    sudo reboot
 
 elif grep -q "PHASE II complete" $LOG; then # THERE IS A LOG AND IT INDICATES THAT PHASE II IS DONE
 

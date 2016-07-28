@@ -7,9 +7,15 @@
 
 INSTALLER="/home/ubuntu/install_DNASeq_pipe.sh"
 
-if [ ! -f $LOG ]; then  # THERE IS INSTALLER
-    wget 
-    
+if [ ! -f $INSTALLER ]; then  # THERE IS INSTALLER
+    cd /home/ubuntu/
+    export https_proxy=https://cloud-proxy:3128
+    wget https://raw.githubusercontent.com/DrOppenheimer/Kevin_shell_scripts/master/install_DNASeq_pipe.sh
+    install_DNASeq_pipe.sh
+else
+    cd /home/ubuntu/
+    install_DNASeq_pipe.sh
+fi
 
 
 
