@@ -166,7 +166,7 @@ if [ ! -f $LOG ]; then  # THERE IS NO LOG
     echo "export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128" >> /etc/default/docker
 
     #service docker restart # Kevin edit
-    EOFSHELL_1
+EOFSHELL_1
     
     #exit # exit sudo
     #exit # LOGOUT  
@@ -194,7 +194,7 @@ else # THERE IS A LOG AND IT INDICATES THAT PHASE I IS DONE, BUT PHASE II IS NOT
     #sudo su
     sudo -s <<'EOFSHELL_2'
     apt-get update && apt-get install -y virtualenvwrapper nodejs  # <-- stopped here 7-27-16
-    EOFSHELL_2
+EOFSHELL_2
     #exit
     
     ### (3) configure virtualenvwrapper
