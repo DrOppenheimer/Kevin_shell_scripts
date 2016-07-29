@@ -100,7 +100,7 @@ if [ ! -f $LOG ]; then  # THERE IS NO LOG
     
     ### enter sudo prompt
     #sudo su
-    sudo -s <<'EOFSHELL_1'
+sudo -s << EOFSHELL_1
     
     ### update
     apt-get update
@@ -192,7 +192,7 @@ else # THERE IS A LOG AND IT INDICATES THAT PHASE I IS DONE, BUT PHASE II IS NOT
     
     ### (2) On VM, ensure virtualenvwrapper and nodejs are installed:
     #sudo su
-    sudo -s <<'EOFSHELL_2'
+sudo -s << EOFSHELL_2
     apt-get update && apt-get install -y virtualenvwrapper nodejs  # <-- stopped here 7-27-16
 EOFSHELL_2
     #exit
