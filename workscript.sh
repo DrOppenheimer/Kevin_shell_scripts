@@ -3,11 +3,8 @@ LOG="/home/ubuntu/.DNASeq.install_log.txt"
 
 chmod -R 777 /mnt
 mkdir -p /mnt/SCRATCH
-mkdir -p /mnt/SCRATCH/images
 mkdir -p /mnt/SCRATCH/tmp
-mkdir -p /mnt/SCRATCH/coclean
 mkdir -p /mnt/SCRATCH/grch38
-mkdir -p /mnt/SCRATCH/genoMel_harmon
 cd ~
 ln -s /mnt/SCRATCH/ SCRATCH
 
@@ -19,47 +16,48 @@ chmod 777 $LOG
 export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128
 #echo "export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128" >> ~/.profile
 
+GRIFFIN=https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data
+
 # copy accessory files
-cd ~
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/virtualenvs.tar.gz --no-check-certificate
-tar -xzf virtualenvs.tar.gz
-rm virtualenvs.tar.gz
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/cocleaning-cwl.tar.gz --no-check-certificate
-tar -xzf cocleaning-cwl.tar.gz
-rm cocleaning-cwl.tar.gz
-cd /mnt/SCRATCH/images
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/bam_readgroup_to_json.tar --no-check-certificate
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/fastqc_db.tar --no-check-certificate
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/readgroup_json_db.tar --no-check-certificate
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/bam_reheader.tar --no-check-certificate
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/fastqc_tool.tar --no-check-certificate
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/samtools_tool.tar --no-check-certificate
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/biobambam_tool.tar --no-check-certificate
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/merge_sqlite.tar --no-check-certificate
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/bwa_tool.tar --no-check-certificate
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/picard_tool.tar --no-check-certificate
-cd /mnt/SCRATCH/coclean
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/dbsnp_144.hg38.vcf.gz --no-check-certificate
-cd /mnt/SCRATCH/
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/grch38.tar.gz --no-check-certificate
-tar -xzf grch38.tar.gz
-rm grch38.tar.gz
-cd /mnt/SCRATCH/genoMel_harmon
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/genoMel.KHP_4.json --no-check-certificate
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/genoMel.GDNA_50.json --no-check-certificate
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/CTRL_NA12878_CL_UNK_GDNA_50_NA.bam --no-check-certificate
-wget https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data/CTRL_NA12878_GDNA_HSV4_KHP_4.bam --no-check-certificate
+for f in virtualenvs.tar.gz cocleaning-cwl.tar.gz
+do
+	curl -k $GRIFFIN/$f -o $HOME/$f
+	tar -C $HOME -xzf $f && rm -f $HOME/$f
+done
+
+TARGET=/mnt/SCRATCH/images
+mkdir -p $TARGET
+for f in bam_readgroup_to_json.tar fastqc_db.tar readgroup_json_db.tar bam_reheader.tar fastqc_tool.tar samtools_tool.tar biobambam_tool.tar merge_sqlite.tar bwa_tool.tar picard_tool.tar
+do
+	curl -k $GRIFFIN/$f -o $TARGET/$f
+done
+
+TARGET=/mnt/SCRATCH/coclean
+mkdir -p $TARGET
+curl -k $GRIFFIN/dbsnp_144.hg38.vcf.gz -o $TARGET/dbsnp_144.hg38.vcf.gz
+
+TARGET=/mnt/SCRATCH/
+mkdir -p $TARGET
+curl -k $GRIFFIN/grch38.tar.gz -o $TARGET/grch38.tar.gz
+tar -C $TARGET -xzf $TARGET/grch38.tar.gz && rm $TARGET/grch38.tar.gz
+
+TARGET=/mnt/SCRATCH/genoMel_harmon
+mkdir -p $TARGET
+for f in genoMel.KHP_4.json genoMel.GDNA_50.json CTRL_NA12878_CL_UNK_GDNA_50_NA.bam CTRL_NA12878_GDNA_HSV4_KHP_4.bam
+do
+	curl -k $GRIFFIN/$f -o $TARGET/$f
+done
 
 ### copy images from cleversafe to /mnt/SCRATCH/images
 # did this by hand for now -- are in PDC /home/KKEEGAN/temp/genomel_DNASeq_dockers.7-25-16
 # think I can host them on genomel cleversafe -- or public versions of dockers on a repo with version control/tagging but does not require auth?
 
 ### (1) install current version of docker
-#aptitude install -y apt-transport-https ca-certificates
+apt-get install -y apt-transport-https ca-certificates
 apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
 echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" > /etc/apt/sources.list.d/docker.list
 apt-get update
-apt-get install htop docker-engine virtualenvwrapper nodejs
+apt-get install -y htop docker-engine virtualenvwrapper nodejs
 mkdir -p /mnt/SCRATCH/docker
 usermod -G docker -a ubuntu
 echo "DOCKER_OPTS=\"--dns 8.8.8.8 --dns 8.8.4.4 -g /mnt/SCRATCH/docker/\"" >> /etc/default/docker
