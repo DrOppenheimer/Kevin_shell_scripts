@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x;
 # Script to be run once (initial boot) on genomel VMs to install Jeremiah's DNASeq pipeline
 # adapted from https://github.com/NCI-GDC/cocleaning-cwl/tree/master/workflows/dnaseq with additional notes from Jeremiah, 7-25-16
 # (numbers correspond to those in the above repo 7-25-16; several edited or omitted based on Jeremiah's notes)
@@ -232,5 +232,6 @@ EOFSHELL_2
     # # for example file 1
     # nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/ --tmp-outdir-prefix /mnt/SCRATCH/tmp/ --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml  /mnt/SCRATCH/genoMel_harmon/genoMel.GDNA_50.json &
     # rm -R /mnt/SCRATCH/test/tmp*
-    
 fi
+
+set +x;
