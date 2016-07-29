@@ -19,10 +19,12 @@ export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy
 GRIFFIN=https://griffin-objstore.opensciencedatacloud.org/genome_supplemental_data
 
 # copy accessory files
+TARGET=/home/ubuntu
+mkdir -p $TARGET
 for f in virtualenvs.tar.gz cocleaning-cwl.tar.gz
 do
-	curl -k $GRIFFIN/$f -o $HOME/$f
-	tar -C $HOME -xzf $f && rm -f $HOME/$f
+	curl -k $GRIFFIN/$f -o $TARGET/$f
+	tar -C /home/ubuntu -xzf $TARGET/$f && rm -f /home/ubuntu/$f
 done
 
 TARGET=/mnt/SCRATCH/images
@@ -48,6 +50,8 @@ do
 	curl -k $GRIFFIN/$f -o $TARGET/$f
 done
 
+chown -R ubuntu:ubuntu /mnt/SCRATCH
+
 ### copy images from cleversafe to /mnt/SCRATCH/images
 # did this by hand for now -- are in PDC /home/KKEEGAN/temp/genomel_DNASeq_dockers.7-25-16
 # think I can host them on genomel cleversafe -- or public versions of dockers on a repo with version control/tagging but does not require auth?
@@ -68,27 +72,12 @@ echo "export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud
 service docker restart
 
 ### install the images
-cd /mnt/SCRATCH/images
-for i in `ls`; do sudo docker load -i $i; echo "loaded $i"; done;
-cd ~
+for i in /mnt/SCRATCH/images/*; do sudo docker load -i $i; echo "loaded $i"; done;
+
+su - ubuntu -c 'rsync -av /home/ubuntu/cocleaning-cwl /home/ubuntu/new_vm'
+su - ubuntu -c 'rsync -av /home/ubuntu/.virtualenvs /home/ubuntu/new_vm'
+
 
 ### (3) configure virtualenvwrapper
-echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> ~/.bashrc
-source ~/.bashrc
-
-
-### (5) --- alternative step 5
-# (5) Instead of step 5, on 172.16.165.255, do
-cd ~
-rsync -av --progress .virtualenvs new_vm
-
-# (6) When virtualenv is first created (3), the vitualenv will be activated. To activate virtualenv on later login sessions:
-workon cwl
-
-### (7) upgrade pip
-pip install --upgrade pip
-
-### (8-10) Skip steps 8-9, 10 is edited below
-
-### (10) Instead of step 10, on 172.16.165.255, do
-rsync -av --progress cocleaning-cwl new_vm
+echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> /home/ubuntu/.bashrc
+su - ubuntu -c 'source /usr/share/virtualenvwrapper/virtualenvwrapper.sh;workon cwl;pip install --upgrade pip'
