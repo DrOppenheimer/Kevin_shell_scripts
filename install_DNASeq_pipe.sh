@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x;
+#set -x;
 # Script to be run once (initial boot) on genomel VMs to install Jeremiah's DNASeq pipeline
 # adapted from https://github.com/NCI-GDC/cocleaning-cwl/tree/master/workflows/dnaseq with additional notes from Jeremiah, 7-25-16
 # (numbers correspond to those in the above repo 7-25-16; several edited or omitted based on Jeremiah's notes)
@@ -100,7 +100,7 @@ if [ ! -f $LOG ]; then  # THERE IS NO LOG
     
     ### enter sudo prompt
     #sudo su
-sudo -s << EOFSHELL_1
+sudo su << EOFSHELL_1
     
     ### update
     apt-get update
@@ -192,7 +192,7 @@ else # THERE IS A LOG AND IT INDICATES THAT PHASE I IS DONE, BUT PHASE II IS NOT
     
     ### (2) On VM, ensure virtualenvwrapper and nodejs are installed:
     #sudo su
-sudo -s << EOFSHELL_2
+sudo su << EOFSHELL_2
     apt-get update && apt-get install -y virtualenvwrapper nodejs  # <-- stopped here 7-27-16
 EOFSHELL_2
     #exit
@@ -221,7 +221,7 @@ EOFSHELL_2
     rsync -av --progress cocleaning-cwl new_vm
  
     ### write to the log file
-    echo "PHASE II complete, one more to go" >> $LOG
+    echo "PHASE II complete, install is COMPLETE" >> $LOG
 
     ### (12) Run workflow (HERE FOR REFERENCE ONLY)
     # # see genomel_boto.7-20-16 for using boto to get sample data from cleversafe
@@ -234,4 +234,4 @@ EOFSHELL_2
     # rm -R /mnt/SCRATCH/test/tmp*
 fi
 
-set +x;
+#set +x;
