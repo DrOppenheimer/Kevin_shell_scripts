@@ -100,7 +100,7 @@ if [ ! -f $LOG ]; then  # THERE IS NO LOG
     
     ### enter sudo prompt
     #sudo su
-sudo su << EOFSHELL_1
+sudo su << EOFSHELL_1 # this works if I cut and paste it - but not when run from this script
     
     ### update
     apt-get update
