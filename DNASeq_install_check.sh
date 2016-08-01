@@ -5,22 +5,29 @@ set -x;
 # It always tries to run the installer -- the installer itself will stop
 # if it detects that the installation has already been completed
 
-
-INSTALLER="/home/ubuntu/install_DNASeq_pipe.sh"
 LOG="/home/ubuntu/.DNASeq.install_log.txt"
+INSTALLER="https://raw.githubusercontent.com/DrOppenheimer/Kevin_shell_scripts/master/workscript.sh"
 
-if [ ! -f $INSTALLER ]; then  # THERE IS INSTALLER
-    cd /home/ubuntu/
+# Will only run the installer if the $LOG is not there
+if [ ! -f $LOG ]; then  # THERE IS INSTALLER
     export https_proxy=https://cloud-proxy:3128
-    wget https://raw.githubusercontent.com/DrOppenheimer/Kevin_shell_scripts/master/install_DNASeq_pipe.sh
-    chmod +x install_DNASeq_pipe.sh
-    #./install_DNASeq_pipe.sh
-    ./install_DNASeq_pipe.sh 2>&1 | tee -a $LOG
+    curl -k $INSTALLER | bash
 else
-    cd /home/ubuntu/
-    #./install_DNASeq_pipe.sh
-    ./install_DNASeq_pipe.sh 2>&1 | tee -a $LOG
+    echo "Looks like the installer already ran - delete /home/ubuntu/..DNASeq.install_log.txt and try again."
 fi
+
+# if [ ! -f $INSTALLER ]; then  # THERE IS INSTALLER
+#     cd /home/ubuntu/
+#     export https_proxy=https://cloud-proxy:3128
+#     wget https://raw.githubusercontent.com/DrOppenheimer/Kevin_shell_scripts/master/install_DNASeq_pipe.sh
+#     chmod +x install_DNASeq_pipe.sh
+#     #./install_DNASeq_pipe.sh
+#     ./install_DNASeq_pipe.sh 2>&1 | tee -a $LOG
+# else
+#     cd /home/ubuntu/
+#     #./install_DNASeq_pipe.sh
+#     ./install_DNASeq_pipe.sh 2>&1 | tee -a $LOG
+# fi
 
 
 
