@@ -88,3 +88,5 @@ echo "Installer completed" >> $LOG
 
 echo touch "DNASeq_is_ready" >> $LOG
 
+sudo reboot
+
