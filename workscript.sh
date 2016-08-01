@@ -7,6 +7,7 @@ mkdir -p /mnt/SCRATCH/tmp
 mkdir -p /mnt/SCRATCH/grch38
 cd ~
 ln -s /mnt/SCRATCH/ SCRATCH
+touch "DNASeq_not_ready_yet"
 
 ### create log file
 touch $LOG
@@ -83,3 +84,7 @@ echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> /home/ubuntu/
 su - ubuntu -c 'source /usr/share/virtualenvwrapper/virtualenvwrapper.sh;workon cwl;pip install --upgrade pip'
 
 echo "Installer completed" >> $LOG
+
+rm "DNASeq_not_ready_yet"
+touch "DNASeq_is_ready"
+
