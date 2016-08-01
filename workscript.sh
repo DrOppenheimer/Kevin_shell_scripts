@@ -71,7 +71,7 @@ echo "export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud
 
 
 ### run docker daemon
-service docker restart
+sudo service docker restart
 
 ### install the images
 for i in /mnt/SCRATCH/images/*; do sudo docker load -i $i; echo "loaded $i"; done;
@@ -88,5 +88,5 @@ echo "Installer completed" >> $LOG
 
 echo touch "DNASeq_is_ready" >> $LOG
 
-sudo reboot
+#sudo reboot
 
