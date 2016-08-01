@@ -7,11 +7,12 @@ mkdir -p /mnt/SCRATCH/tmp
 mkdir -p /mnt/SCRATCH/grch38
 cd ~
 ln -s /mnt/SCRATCH/ SCRATCH
-touch "DNASeq_not_ready_yet"
+
 
 ### create log file
 touch $LOG
 chmod 777 $LOG
+echo "DNASeq_not_ready_yet" >> $LOG
 
 ### set proxy vars
 export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128
@@ -85,6 +86,5 @@ su - ubuntu -c 'source /usr/share/virtualenvwrapper/virtualenvwrapper.sh;workon 
 
 echo "Installer completed" >> $LOG
 
-rm "DNASeq_not_ready_yet"
-touch "DNASeq_is_ready"
+echo touch "DNASeq_is_ready" >> $LOG
 
