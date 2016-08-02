@@ -69,7 +69,6 @@ usermod -G docker -a ubuntu
 echo "DOCKER_OPTS=\"--dns 8.8.8.8 --dns 8.8.4.4 -g /mnt/SCRATCH/docker/\"" >> /etc/default/docker
 echo "export http_proxy=http://cloud-proxy:3128; export https_proxy=http://cloud-proxy:3128" >> /etc/default/docker
 
-
 ### run docker daemon
 sudo service docker restart
 
@@ -78,7 +77,6 @@ for i in /mnt/SCRATCH/images/*; do sudo docker load -i $i; echo "loaded $i"; don
 
 su - ubuntu -c 'rsync -av /home/ubuntu/cocleaning-cwl /home/ubuntu/new_vm'
 su - ubuntu -c 'rsync -av /home/ubuntu/.virtualenvs /home/ubuntu/new_vm'
-
 
 ### (3) configure virtualenvwrapper
 echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> /home/ubuntu/.bashrc
