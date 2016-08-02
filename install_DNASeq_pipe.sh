@@ -8,6 +8,9 @@
 # This was tested on a VM started like this:
 # nova boot --image 673d28c9-6b33-4e13-84a0-52e3776685e8 --flavor 30 --key-name kevin_PDC_genomel genomel_GDC_port
 #
+# The installer is currently run like this:
+# nova boot --image 673d28c9-6b33-4e13-84a0-52e3776685e8 --flavor 30 --key-name kevin_PDC_genomel genomel_GDC_port8 --user-data ./run_install.sh
+#
 # assumes that the following two directories are already present in the image
 #      /home/ubuntu/cocleaning-cwl # from https://github.com/NCI-GDC/cocleaning-cwl
 #      /home/ubuntu/.virtualenvs # .virtualenvs # from originals that Jeremiah configured (on genomel-dev, 172.16.165.255)
