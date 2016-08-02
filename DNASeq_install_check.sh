@@ -10,11 +10,16 @@ set -x;
 
 LOG="/home/ubuntu/.DNASeq.install_log.txt"
 INSTALLER="https://raw.githubusercontent.com/DrOppenheimer/Kevin_shell_scripts/master/workscript.sh"
+INSTALLER_SCRIPT=`basename $INSTALLER`
 
 # Will only run the installer if the $LOG is not there
 if [ ! -f $LOG ]; then  # THERE IS INSTALLER
+    cd /home/ubuntu/
     export https_proxy=https://cloud-proxy:3128
-    curl -k $INSTALLER | sudo bash 2>&1 | tee -a $LOG
+    #curl -k $INSTALLER | sudo bash 2>&1 | tee -a $LOG
+    wget $INSTALLER
+    chmod +x $INSTALLER_SCRIPT
+    sudo ./$INSTALLER_SCRIPT 2>&1 | tee -a $LOG
 else
     echo "Looks like the installer already ran - delete /home/ubuntu/..DNASeq.install_log.txt and try again."
 fi
