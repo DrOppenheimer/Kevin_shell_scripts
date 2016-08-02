@@ -10,6 +10,8 @@
 #
 # The installer is currently run like this:
 # nova boot --image 673d28c9-6b33-4e13-84a0-52e3776685e8 --flavor 30 --key-name kevin_PDC_genomel genomel_GDC_port8 --user-data ./run_install.sh
+# For DNASeq 
+# nova boot --image 9233840a-fd47-4a6f-99a2-cdfc0e03127e --flavor 30 --key-name kevin_PDC_genomel genomel_GDC_port12
 #
 # assumes that the following two directories are already present in the image
 #      /home/ubuntu/cocleaning-cwl # from https://github.com/NCI-GDC/cocleaning-cwl

@@ -5,13 +5,16 @@ set -x;
 # It always tries to run the installer -- the installer itself will stop
 # if it detects that the installation has already been completed
 
+# This script
+# 
+
 LOG="/home/ubuntu/.DNASeq.install_log.txt"
 INSTALLER="https://raw.githubusercontent.com/DrOppenheimer/Kevin_shell_scripts/master/workscript.sh"
 
 # Will only run the installer if the $LOG is not there
 if [ ! -f $LOG ]; then  # THERE IS INSTALLER
     export https_proxy=https://cloud-proxy:3128
-    curl -k $INSTALLER | bash
+    curl -k $INSTALLER | bash 2>&1 | tee -a $LOG
 else
     echo "Looks like the installer already ran - delete /home/ubuntu/..DNASeq.install_log.txt and try again."
 fi
