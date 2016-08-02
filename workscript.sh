@@ -86,7 +86,7 @@ su - ubuntu -c 'source /usr/share/virtualenvwrapper/virtualenvwrapper.sh;workon 
 
 echo "Installer completed" >> $LOG
 
-echo touch "DNASeq_is_ready" >> $LOG
+echo "DNASeq_is_ready" >> $LOG
 
 #sudo reboot
 
