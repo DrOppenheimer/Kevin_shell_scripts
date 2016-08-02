@@ -80,7 +80,7 @@ su - ubuntu -c 'rsync -av /home/ubuntu/.virtualenvs /home/ubuntu/new_vm'
 
 ### (3) configure virtualenvwrapper
 echo "source /usr/share/virtualenvwrapper/virtualenvwrapper.sh" >> /home/ubuntu/.bashrc
-su - ubuntu -c 'source /usr/share/virtualenvwrapper/virtualenvwrapper.sh;workon cwl;pip install --upgrade pip'
+su - ubuntu -c 'source /usr/share/virtualenvwrapper/virtualenvwrapper.sh;workon cwl;pip install --upgrade pip --proxy http://cloud-proxy:3128'
 
 echo "Installer completed" >> $LOG
 
