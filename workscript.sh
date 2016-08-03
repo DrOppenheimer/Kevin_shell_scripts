@@ -89,9 +89,13 @@ echo "DNASeq_is_ready" >> $LOG
 # reboot so next login will have correct permissions
 sudo reboot
 
+# Start VM that runs installer at boot
+# nova boot --image 3d8a0286-5f61-46db-88a4-63f6a8a9f216 --flavor 30 --key-name kevin_PDC_genomel genomel_GDC_port21
+
+
 # example runs
 # nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.KHP_4.json &
-# nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml CTRL_NA12878_CL_UNK_GDNA_50_NA.bam &
+# nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.GDNA_50.json &
 # cleanup
 # rm -R /mnt/SCRATCH/tmp/tmp*
 # mkdir -p /mnt/SCRATCH/tmp/tmp
