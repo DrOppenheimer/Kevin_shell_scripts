@@ -3,7 +3,7 @@ LOG="/home/ubuntu/.DNASeq.install_log.txt"
 
 chmod -R 777 /mnt
 mkdir -p /mnt/SCRATCH
-mkdir -p /mnt/SCRATCH/tmp
+mkdir -p /mnt/SCRATCH/tmp/tmp
 mkdir -p /mnt/SCRATCH/grch38
 cd ~
 ln -s /mnt/SCRATCH/ SCRATCH
@@ -91,8 +91,15 @@ echo "DNASeq_is_ready" >> $LOG
 # 8-3-16 -- looks like a simple exit will do
 exit
 
-# example run
-# nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/ --tmp-outdir-prefix /mnt/SCRATCH/tmp/ --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.KHP_4.json ; rm -R tmp* &
+# example runs
+# nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.KHP_4.json &
+# nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml CTRL_NA12878_CL_UNK_GDNA_50_NA.bam &
+# cleanup
+# rm -R /mnt/SCRATCH/tmp/tmp*
+# mkdir -p /mnt/SCRATCH/tmp/tmp
+
+#
+# This creates a bunch of tmp* directories where it is run 
 
 # The installer can be run in (at least) three ways - option 3 is the most fully automated installation:
 # (1) This way (assuming this is run from the headnode, and run_install.sh is up to date and present in /home/pdcUser/ ):
@@ -104,13 +111,17 @@ exit
 # set the proxy:
 #      https_proxy=https://cloud-proxy:3128
 # download the installer
-#      cd /home/ubuntu; wget https://github.com/DrOppenheimer/Kevin_shell_scripts/blob/master/DNASeq_install_check.sh
+#      cd /home/ubuntu; wget https://raw.githubusercontent.com/DrOppenheimer/Kevin_shell_scripts/master/DNASeq_install_check.sh
 # make it executable
 #      chmod +x DNASeq_install_check.sh
 # run it
-#      sudo ./DNASeq_install_check.sh 2>&1 | tee -a install_log.txt
+#      ./DNASeq_install_check.sh
 # The installer will log you out when it is done. Log back in and you should be ready to go.
 # (3)  Start up a VM image that is setup to run the installer automatically at boot:
 #      nova boot --image  --flavor 30 --key-name kevin_PDC_genomel genomel_GDC_port12
+
+
+
+
 
 
