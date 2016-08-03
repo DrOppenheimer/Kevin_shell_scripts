@@ -86,10 +86,8 @@ echo "Installer completed" >> $LOG
 
 echo "DNASeq_is_ready" >> $LOG
 
-# have to log out or reboot ???  8-2-16
-#sudo reboot
-# 8-3-16 -- looks like a simple exit will do
-exit
+# reboot so next login will have correct permissions
+sudo reboot
 
 # example runs
 # nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.KHP_4.json &
