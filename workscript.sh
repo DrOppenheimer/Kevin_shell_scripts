@@ -98,19 +98,22 @@ echo "$(($ELAPSED_SECONDS / 60)) minutes and $(($ELAPSED_SECONDS % 60)) seconds 
 sudo reboot
 
 # Start VM that runs installer at boot
+# on genoMEL_Eval tenant
 # nova boot --image 3d8a0286-5f61-46db-88a4-63f6a8a9f216 --flavor 30 --key-name kevin_PDC_genomel genomel_GDC_port21
-
+# on lac tenant
+# nova boot --image 54ba5a93-da11-4233-804d-18930afdf1c7 --flavor 30 --key-name kevin_pdc_internal kevin_lac_DNASeq_bkp
 
 # example runs
 ### nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.KHP_4.json
-# nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.KHP_4.json > nohup.KHP_4.out 2>&1& &
-# nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.GDNA_50.json > nohup.GDNA_50.out 2>&1& &
+# workon cwl; nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.KHP_4.json > nohup.KHP_4.out 2>&1&
+# workon cwl; nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.GDNA_50.json > nohup.GDNA_50.out 2>&1&
 # cleanup
 # rm -R /mnt/SCRATCH/tmp/tmp*
 # mkdir -p /mnt/SCRATCH/tmp/tmp
 
 
-
+# Create image from running VM
+# nova image-create c86b77e3-7494-4589-b605-8bc8a9220cd4 lac_genomel_GDC_DNASeq.v02
 
 
 
