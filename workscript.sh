@@ -1,6 +1,8 @@
 #!/bin/bash
 LOG="/home/ubuntu/.DNASeq.install_log.txt"
 
+SECONDS_START=`echo $SECONDS`
+
 chmod -R 777 /mnt
 mkdir -p /mnt/SCRATCH
 mkdir -p /mnt/SCRATCH/tmp/tmp
@@ -86,6 +88,12 @@ echo "Installer completed" >> $LOG
 
 echo "DNASeq_is_ready" >> $LOG
 
+# record time it took to run
+SECONDS_END=`echo $SECONDS`
+ELAPSED_SECONDS=`expr $SECONDS_END - $SECONDS_START`
+echo "$(($ELAPSED_SECONDS / 60)) minutes and $(($ELAPSED_SECONDS % 60)) seconds elapsed during installation." >> $LOG
+
+
 # reboot so next login will have correct permissions
 sudo reboot
 
@@ -94,11 +102,17 @@ sudo reboot
 
 
 # example runs
-# nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.KHP_4.json &
-# nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.GDNA_50.json &
+### nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.KHP_4.json
+# nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.KHP_4.json > nohup.KHP_4.out 2>&1& &
+# nohup cwltool --tmpdir-prefix /mnt/SCRATCH/tmp/tmp --tmp-outdir-prefix /mnt/SCRATCH/tmp/tmp --debug ~/cocleaning-cwl/workflows/dnaseq/dnaseq_workflow.cwl.yaml /mnt/SCRATCH/genoMel_harmon/genoMel.GDNA_50.json > nohup.GDNA_50.out 2>&1& &
 # cleanup
 # rm -R /mnt/SCRATCH/tmp/tmp*
 # mkdir -p /mnt/SCRATCH/tmp/tmp
+
+
+
+
+
 
 #
 # This creates a bunch of tmp* directories where it is run 
