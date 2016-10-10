@@ -22,12 +22,14 @@ if [ ! -d /mnt/ref_data ]; then
     mkdir -p /mnt/dockers
     cd /mnt/dockers
     aws s3 sync s3://docker_images . --endpoint-url https://bionimbus-objstore.opensciencedatacloud.org --profile genomel
-    sudo docker load -i /mnt/dockers/genomel-primary-analysis_0.1a.tar
-    sudo docker tag d8567a99d120 registry.gitlab.com/uc-cdis/genomel-primary-analysis_0.1a
+    sudo docker load -i /mnt/dockers/genomel-primary-analysis_0.1b.tar
+    sudo docker tag 9dc9cd99cd9f registry.gitlab.com/uc-cdis/genomel-primary-analysis:0.1b
     sudo docker load -i /mnt/dockers/genomel-secondary-analysis_0.1a.tar
-    sudo docker tag 9e18436e398a registry.gitlab.com/uc-cdis/genomel-secondary-analysis_0.1a
+    sudo docker tag 9e18436e398a registry.gitlab.com/uc-cdis/genomel-secondary-analysis:0.1a
+    sudo docker load -i /mnt/dockers/genomel-exome-variant-detection_0.1b.tar
+    sudo docker tag 5ded84a25098 registry.gitlab.com/uc-cdis/genomel-exome-variant-detection:0.1b
     sudo docker load -i /mnt/dockers/genomel-exome-variant-detection_0.1c.tar
-    sudo docker tag e9f9fc116918 registry.gitlab.com/uc-cdis/genomel-exome-variant-detection_0.1c
+    sudo docker tag e9f9fc116918 registry.gitlab.com/uc-cdis/genomel-exome-variant-detection:0.1c 
     echo "DOWNLOADED AND LOADED DOCKERS" >> /home/ubuntu/some_log.txt;
     # cleanup
     sudo rm -R /mnt/dockers
