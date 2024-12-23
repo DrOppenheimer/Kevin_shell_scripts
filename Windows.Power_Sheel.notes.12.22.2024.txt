@@ -1,0 +1,61 @@
+2024/12/22 13:04:04 CRITICAL: Failed to create file system for "s3:backupkpk\\Pictures": didn't find section in config file
+
+backupkpk
+
+# Get the size of a folder in my backup bucket
+aws s3 ls s3://backupkpk/Pictures --recursive --human-readable --summarize
+
+# Create a folder in the bucket
+aws s3api put-object --bucket backupkpk --key Music/
+
+# List the folders in a bucket
+aws s3 ls s3://backupkpk/
+
+
+
+
+
+
+# SMB 1
+
+# Enable SMB1
+Enable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
+Restart-Computer
+
+# Mount share to local drive
+New-SmbMapping -LocalPath X:\ -RemotePath \\RemoteServer\ShareName -Persistent
+
+# List currently mounted drives
+Get-PSDrive -PSProvider FileSystem
+
+# See which letters are available for mounting
+# Define the range of possible drive letters as an array of strings
+$allLetters = @('C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z')
+# Get the list of used drive letters
+$usedLetters = Get-PSDrive -PSProvider FileSystem | Select-Object -ExpandProperty Name
+# Filter out the used drive letters
+$availableLetters = $allLetters | Where-Object { $_ -notin $usedLetters }
+# Output the available drive letters
+$availableLetters
+
+# See how big a share is
+$sharePath = "\\Drobo_K2\Pictures"
+$totalSize = (Get-ChildItem -Path $sharePath -Recurse | Measure-Object -Property Length -Sum).Sum
+$totalSizeGB = [math]::Round($totalSize / 1GB, 2) 
+Write-Output "Total size of the SMB1 store: $totalSizeGB GB"
+
+
+
+
+
+
+
+# Nohup for powershell
+$wsh = New-Object -ComObject WScript.Shell
+while ($true) {
+    $wsh.SendKeys('+{F15}')
+    Start-Sleep -Seconds 60
+}
+# ctrl c # to cancel
+
+
