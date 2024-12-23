@@ -12,6 +12,17 @@ aws s3api put-object --bucket backupkpk --key Music/
 aws s3 ls s3://backupkpk/
 
 
+# Backup pictures
+net use Y: /delete
+net use Y: \\Drobo_K2\Pictures /persistent:yes
+aws s3 sync //Drobo_K2/Pictures s3://backupkpk/Pictures/
+# run Nohup for powershell(see below) in background
+
+# Backup Music
+net use Y: /delete
+net use Y: \\Drobo_K2\K2_Music /persistent:yes
+aws s3 sync //Drobo_K2/K2_Music s3://backupkpk/Music/
+# run Nohup for powershell(see below) in background
 
 
 
@@ -22,8 +33,11 @@ aws s3 ls s3://backupkpk/
 Enable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
 Restart-Computer
 
+# Delete existing share 
+net use Y: /delete
 # Mount share to local drive
-New-SmbMapping -LocalPath X:\ -RemotePath \\RemoteServer\ShareName -Persistent
+net use Y: \\Drobo_K2\K2_Music /persistent:yes
+# New-SmbMapping -LocalPath X:\ -RemotePath \\Drobo_K2\K2_Music -Persistent # This did not work so used "net"
 
 # List currently mounted drives
 Get-PSDrive -PSProvider FileSystem
